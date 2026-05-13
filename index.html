@@ -1,0 +1,1207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>SimWeaver · Zero-Shot RGB Sim-to-Real for Deformable Manipulation</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        fontFamily: {
+          sans: ['Inter', 'system-ui', 'sans-serif'],
+          display: ['Space Grotesk', 'Inter', 'sans-serif'],
+          mono: ['JetBrains Mono', 'ui-monospace', 'monospace'],
+        },
+        colors: {
+          ink: '#0a0a0a',
+          paper: '#f5f1ea',
+          mute: '#8a8580',
+          line: '#1f1d1a',
+          accent: '#e8c547',
+        }
+      }
+    }
+  }
+</script>
+
+<style>
+  :root {
+    --ink:    #0a0a0a;
+    --ink-2:  #111110;
+    --paper:  #f5f1ea;
+    --mute:   #8a8580;
+    --line:   #1f1d1a;
+    --accent: #e8c547;
+  }
+  html, body { background: var(--ink); color: var(--paper); -webkit-font-smoothing: antialiased; }
+  body { font-family: 'Inter', system-ui, sans-serif; font-feature-settings: "ss01","cv11"; }
+  .font-display { font-family: 'Space Grotesk', 'Inter', sans-serif; letter-spacing: -0.02em; }
+
+  ::selection { background: var(--accent); color: var(--ink); }
+
+  /* Letterbox container — cinematic 16:9 (native video aspect) with black bands above/below */
+  .letterbox { background: #000; position: relative; }
+  .letterbox-stage {
+    aspect-ratio: 16 / 9;
+    background: #000;
+    overflow: hidden;
+    position: relative;
+  }
+  .hero-video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    position: absolute;
+    inset: 0;
+    transition: opacity 0.4s ease;
+  }
+  .letterbox-stage::after {
+    content: "";
+    position: absolute; inset: 0;
+    pointer-events: none;
+    box-shadow: inset 0 0 120px rgba(0,0,0,0.55);
+  }
+
+  /* Chip switcher */
+  .chip {
+    transition: all 0.25s ease;
+    border: 1px solid var(--line);
+    background: #0d0c0a;
+  }
+  .chip:hover { border-color: rgba(232,197,71,0.4); }
+  .chip.active {
+    border-color: var(--accent);
+    background: rgba(232,197,71,0.06);
+  }
+  .chip .progress-bar {
+    transform-origin: left;
+    transform: scaleX(0);
+    transition: transform linear;
+    background: #2a2826;
+  }
+  .chip.active .progress-bar { background: var(--accent); }
+
+  .hairline { border-top: 1px solid var(--line); }
+  .stat-num { font-variant-numeric: tabular-nums; }
+
+  .real-cell { position: relative; overflow: hidden; background: #0e0d0b; transition: transform 0.3s ease; }
+  .real-cell:hover { transform: scale(1.02); }
+  .real-cell video { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .real-cell .placeholder {
+    width: 100%; height: 100%;
+    display: flex; align-items: center; justify-content: center;
+    background: repeating-linear-gradient(45deg, #141312 0 8px, #0e0d0b 8px 16px);
+    color: var(--mute); font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase;
+  }
+
+  .card {
+    background: linear-gradient(180deg, #131210 0%, #0d0c0a 100%);
+    border: 1px solid var(--line);
+    border-radius: 6px;
+  }
+
+  .pair-cell {
+    background: #0c0b0a;
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    overflow: hidden;
+    aspect-ratio: 16/10;
+    position: relative;
+  }
+  /* Real footage was shot portrait — anchor crop to bottom so the cloth/action
+     region is preserved instead of the central robot-arms band. */
+  .pair-cell.real video,
+  .real-cell video {
+    object-position: 50% 100%;
+  }
+  .pair-cell video { width: 100%; height: 100%; object-fit: cover; }
+
+  /* PiP wrist insets — corner overlays on top of the main static_cam */
+  .pair-cell .pip-wrist {
+    position: absolute;
+    bottom: 10px;
+    width: 26%;
+    aspect-ratio: 4/3;
+    border: 1px solid rgba(245,241,234,0.4);
+    border-radius: 4px;
+    overflow: hidden;
+    z-index: 2;
+    box-shadow: 0 3px 12px rgba(0,0,0,0.55);
+    background: #000;
+  }
+  .pair-cell .pip-wrist.left  { left: 10px; }
+  .pair-cell .pip-wrist.right { right: 10px; }
+  .pair-cell .pip-wrist video { width: 100%; height: 100%; object-fit: cover; }
+  .pair-cell .pip-tag {
+    position: absolute;
+    bottom: 3px; left: 50%;
+    transform: translateX(-50%);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: rgba(245,241,234,0.95);
+    background: rgba(0,0,0,0.65);
+    padding: 2px 5px;
+    border-radius: 2px;
+    white-space: nowrap;
+    line-height: 1;
+  }
+
+  .pair-cell .placeholder {
+    width: 100%; height: 100%;
+    display: flex; align-items: center; justify-content: center;
+    background: repeating-linear-gradient(45deg, #141312 0 8px, #0e0d0b 8px 16px);
+    color: var(--mute); font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase;
+  }
+
+  nav a:hover { color: var(--accent); }
+
+  .gallery-card { position: relative; overflow: hidden; border-radius: 6px; aspect-ratio: 16/9; background: #000; }
+  .gallery-card video { width: 100%; height: 100%; object-fit: cover; }
+  .gallery-card .label {
+    position: absolute; left: 14px; bottom: 12px;
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 13px; letter-spacing: 0.06em; text-transform: uppercase;
+    color: rgba(245,241,234,0.9);
+    background: rgba(0,0,0,0.55);
+    padding: 4px 10px; border-radius: 2px;
+    backdrop-filter: blur(6px);
+  }
+
+  .tag {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-family: 'JetBrains Mono', monospace; font-size: 11px;
+    letter-spacing: 0.08em; text-transform: uppercase;
+    color: var(--mute);
+  }
+  .tag .dot { width: 6px; height: 6px; border-radius: 999px; background: var(--accent); }
+
+  .big-num { font-family: 'Space Grotesk', sans-serif; font-weight: 600; letter-spacing: -0.04em; }
+
+  pre.bib {
+    background: #0c0b0a;
+    border: 1px solid var(--line);
+    color: #cfcabf;
+    padding: 18px 20px;
+    border-radius: 4px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12.5px;
+    line-height: 1.65;
+    overflow-x: auto;
+  }
+
+  /* asset card — light backdrop matches the PNG backgrounds */
+  .asset-card {
+    position: relative;
+    background: #f5f1ea;
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    overflow: hidden;
+    aspect-ratio: 3/4;
+    display: flex;
+    flex-direction: column;
+  }
+  .asset-card img {
+    width: 100%; flex: 1;
+    object-fit: contain;
+    padding: 12px;
+    min-height: 0;
+  }
+  .asset-card .asset-label {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 12px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--ink);
+    background: rgba(245,241,234,0.95);
+    padding: 6px 10px;
+    text-align: center;
+    border-top: 1px solid rgba(10,10,10,0.08);
+  }
+
+  /* multi-view camera tile */
+  .cam-tile {
+    background: #0c0b0a;
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    overflow: hidden;
+    position: relative;
+    aspect-ratio: 4/3;
+  }
+  .cam-tile video { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .cam-tile .cam-tag {
+    position: absolute; top: 6px; left: 6px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px; letter-spacing: 0.1em; text-transform: uppercase;
+    color: rgba(245,241,234,0.85);
+    background: rgba(0,0,0,0.6);
+    padding: 3px 6px; border-radius: 2px;
+  }
+
+  /* table */
+  .data-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .data-table th, .data-table td {
+    padding: 12px 14px; text-align: right; border-bottom: 1px solid var(--line);
+    font-variant-numeric: tabular-nums;
+  }
+  .data-table th:first-child, .data-table td:first-child { text-align: left; }
+  .data-table th { color: var(--mute); font-weight: 500; font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; }
+  .data-table tr.ours td { color: var(--accent); font-weight: 600; }
+</style>
+</head>
+
+<body class="bg-ink text-paper">
+
+<!-- NAV -->
+<nav class="fixed top-0 inset-x-0 z-50 backdrop-blur-md bg-ink/70 border-b border-line">
+  <div class="max-w-[1280px] mx-auto px-6 py-4 flex items-center justify-between">
+    <a href="#" class="font-display font-semibold text-[17px] tracking-tight">
+      Sim<span class="text-accent">Weaver</span>
+    </a>
+    <div class="hidden md:flex items-center gap-8 text-[13px] text-mute font-medium">
+      <a href="#evidence">Results</a>
+      <a href="#method">Method</a>
+      <a href="#silk-ood">Generalization</a>
+      <a href="#gallery">Gallery</a>
+      <a href="#resources">Paper · Code</a>
+    </div>
+  </div>
+</nav>
+
+<!-- HERO -->
+<header class="pt-24 pb-12">
+  <div class="max-w-[1280px] mx-auto px-6">
+    <div class="letterbox rounded-md overflow-hidden">
+      <div class="px-8 md:px-14 pt-10 md:pt-14 pb-8 md:pb-10 text-center">
+        <div class="tag justify-center mb-5"><span class="dot"></span>NeurIPS 2026 submission · Anonymous</div>
+        <h1 class="font-display font-semibold text-[36px] md:text-[58px] leading-[1.05] tracking-tight">
+          SimWeaver: Zero-Shot RGB Sim-to-Real <br class="hidden md:block"/>
+          for Deformable Manipulation
+        </h1>
+        <p class="mt-5 md:mt-6 text-mute text-[15px] md:text-[17px] max-w-3xl mx-auto leading-relaxed">
+          200 simulated demonstrations per task &middot; no teleoperation &middot;
+          <span class="text-paper">91.30%</span> real-world success across 5 deformable tasks.
+        </p>
+      </div>
+
+      <div class="letterbox-stage" id="hero-stage">
+        <video id="hero-video" class="hero-video" muted playsinline preload="auto" autoplay></video>
+      </div>
+
+      <div class="px-8 md:px-14 py-6 md:py-7 flex flex-col md:flex-row items-start md:items-center justify-between gap-3 border-t border-[#161513]">
+        <div class="flex items-center gap-4">
+          <div class="big-num text-[28px] md:text-[32px] text-paper" id="clip-label">Flatten Silk</div>
+          <div class="text-mute text-[13px] hidden md:block" id="clip-scene">Balcony · sun</div>
+        </div>
+        <div class="flex items-center gap-6 text-[13px] text-mute font-medium">
+          <span><span class="text-paper big-num text-[20px]" id="clip-stat-num">95.65%</span> real success</span>
+          <span><span class="text-paper big-num text-[20px]">200</span> sim demos</span>
+          <span class="hidden md:inline-flex gap-3 ml-6">
+            <a class="text-paper hover:text-accent transition" href="#resources">arXiv ↗</a>
+            <a class="text-paper hover:text-accent transition" href="#resources">Code ↗</a>
+            <a class="text-paper hover:text-accent transition" href="#resources">Video ↗</a>
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Chip switcher -->
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mt-5" id="chip-row">
+      <button class="chip rounded-md px-4 py-3 text-left active" data-idx="0">
+        <div class="flex items-center justify-between">
+          <div class="text-[11px] text-mute font-mono tracking-wider uppercase">Task 01</div>
+          <div class="text-[11px] text-accent font-mono">95.65%</div>
+        </div>
+        <div class="font-display text-[15px] mt-0.5">Flatten Silk</div>
+        <div class="progress-bar h-[2px] mt-3"></div>
+      </button>
+      <button class="chip rounded-md px-4 py-3 text-left" data-idx="1">
+        <div class="flex items-center justify-between">
+          <div class="text-[11px] text-mute font-mono tracking-wider uppercase">Task 02</div>
+          <div class="text-[11px] text-accent font-mono">82.61%</div>
+        </div>
+        <div class="font-display text-[15px] mt-0.5">Flatten T&#8209;shirt</div>
+        <div class="progress-bar h-[2px] mt-3"></div>
+      </button>
+      <button class="chip rounded-md px-4 py-3 text-left" data-idx="2">
+        <div class="flex items-center justify-between">
+          <div class="text-[11px] text-mute font-mono tracking-wider uppercase">Task 03</div>
+          <div class="text-[11px] text-accent font-mono">86.96%</div>
+        </div>
+        <div class="font-display text-[15px] mt-0.5">Snack into Bag</div>
+        <div class="progress-bar h-[2px] mt-3"></div>
+      </button>
+      <button class="chip rounded-md px-4 py-3 text-left" data-idx="3">
+        <div class="flex items-center justify-between">
+          <div class="text-[11px] text-mute font-mono tracking-wider uppercase">Task 04</div>
+          <div class="text-[11px] text-accent font-mono">91.30%</div>
+        </div>
+        <div class="font-display text-[15px] mt-0.5">Fold T&#8209;shirt</div>
+        <div class="progress-bar h-[2px] mt-3"></div>
+      </button>
+    </div>
+
+    <!-- Real-robot strip -->
+    <div class="mt-8">
+      <div class="flex items-center gap-3 mb-3">
+        <span class="tag"><span class="dot"></span>Real Robot · Zero-Shot · No Fine-Tuning</span>
+      </div>
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-3" id="real-strip">
+        <div class="real-cell rounded-md aspect-video">
+          <video src="video/real-video/cropped/flatten_silk.mp4" autoplay muted loop playsinline preload="metadata"></video>
+        </div>
+        <div class="real-cell rounded-md aspect-video">
+          <video src="video/real-video/cropped/flatten_tshirt.mp4" autoplay muted loop playsinline preload="metadata"></video>
+        </div>
+        <div class="real-cell rounded-md aspect-video">
+          <video src="video/real-video/cropped/pack_snickers.mp4" autoplay muted loop playsinline preload="metadata"></video>
+        </div>
+        <div class="real-cell rounded-md aspect-video">
+          <video src="video/real-video/cropped/fold_tshirt.mp4" autoplay muted loop playsinline preload="metadata"></video>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- TL;DR -->
+<section class="py-24 hairline">
+  <div class="max-w-[1280px] mx-auto px-6">
+    <div class="grid md:grid-cols-12 gap-10">
+      <div class="md:col-span-4">
+        <div class="tag mb-4"><span class="dot"></span>TL;DR</div>
+        <h2 class="font-display text-[34px] md:text-[40px] leading-[1.1] tracking-tight">
+          Train deformable manipulation policies <span class="text-accent">entirely in simulation</span>, with no teleoperation, deployed zero-shot on real hardware.
+        </h2>
+      </div>
+      <div class="md:col-span-8 grid grid-cols-2 gap-6">
+        <div class="card p-6">
+          <div class="big-num text-[44px] text-accent stat-num">200</div>
+          <div class="text-mute text-[13px] mt-1">simulated demos per task</div>
+          <p class="text-paper/80 text-[14px] mt-3 leading-relaxed">No teleoperation at any stage. Single-seed deterministic synthesis.</p>
+        </div>
+        <div class="card p-6">
+          <div class="big-num text-[44px] text-accent stat-num">91.30%</div>
+          <div class="text-mute text-[13px] mt-1">average real success · n=115 pooled</div>
+          <p class="text-paper/80 text-[14px] mt-3 leading-relaxed">Across 5 deformable tasks. n=23 consecutive trials per task; Wilson 95% CI [84.7, 95.2].</p>
+        </div>
+        <div class="card p-6">
+          <div class="big-num text-[44px] text-accent stat-num">100%</div>
+          <div class="text-mute text-[13px] mt-1">silk grasp under visual shift</div>
+          <p class="text-paper/80 text-[14px] mt-3 leading-relaxed">Texture / lighting / rotation OOD. Real-data baseline drops to 13.0% / 69.6% / 8.7%.</p>
+        </div>
+        <div class="card p-6">
+          <div class="big-num text-[44px] text-accent stat-num">$0.03</div>
+          <div class="text-mute text-[13px] mt-1">per usable trajectory</div>
+          <p class="text-paper/80 text-[14px] mt-3 leading-relaxed">2824 trajectories per day on a single 8&times;RTX 4090 server &mdash; two orders of magnitude cheaper than real-robot collection.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- WHY HARD -->
+<section class="py-24 hairline">
+  <div class="max-w-[1280px] mx-auto px-6">
+    <div class="tag mb-4"><span class="dot"></span>Why this has been hard</div>
+    <h2 class="font-display text-[34px] md:text-[44px] leading-[1.1] tracking-tight max-w-3xl mb-12">
+      Deformable sim-to-real has been blocked by three structural barriers.
+    </h2>
+    <div class="grid md:grid-cols-3 gap-6">
+      <div class="card p-7">
+        <div class="text-mute font-mono text-[12px] tracking-wider">BARRIER 01</div>
+        <h3 class="font-display text-[22px] mt-2 mb-3">Simulator unreliability</h3>
+        <p class="text-paper/75 text-[14.5px] leading-relaxed">
+          Cloth&ndash;rigid contact on thin fabrics breaks across Isaac Sim and VBD &mdash; parameter-sensitive instability, penetration, and non-deterministic replay.
+        </p>
+      </div>
+      <div class="card p-7">
+        <div class="text-mute font-mono text-[12px] tracking-wider">BARRIER 02</div>
+        <h3 class="font-display text-[22px] mt-2 mb-3">Rigid-style synthesis doesn&rsquo;t transfer</h3>
+        <p class="text-paper/75 text-[14.5px] leading-relaxed">
+          MimicGen-lineage methods assume object-centric rigid-frame correspondence. Deformables have neither; concurrent generation pipelines plateau at 17&ndash;29% sim-only success.
+        </p>
+      </div>
+      <div class="card p-7">
+        <div class="text-mute font-mono text-[12px] tracking-wider">BARRIER 03</div>
+        <h3 class="font-display text-[22px] mt-2 mb-3">RGB end-to-end has stalled</h3>
+        <p class="text-paper/75 text-[14.5px] leading-relaxed">
+          The field has systematically migrated to depth / point-cloud, leaving dark, low-texture, and reflective fabrics unsupported.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SIM-TO-REAL EVIDENCE -->
+<section id="evidence" class="py-24 hairline">
+  <div class="max-w-[1280px] mx-auto px-6">
+    <div class="tag mb-4"><span class="dot"></span>Sim-to-Real Evidence</div>
+    <h2 class="font-display text-[34px] md:text-[44px] leading-[1.1] tracking-tight max-w-3xl mb-3">
+      What the policy saw in simulation &mdash; and what it did on the real robot.
+    </h2>
+    <p class="text-mute text-[15px] max-w-2xl mb-12">
+      Left: the policy&rsquo;s actual training observation (front oblique camera). Right: real-world execution with no fine-tuning. Per-task success rates from n=23 consecutive trials.
+    </p>
+
+    <div class="space-y-6">
+
+      <!-- Row 1: Silk Grasp -->
+      <div class="grid md:grid-cols-12 gap-5 items-stretch">
+        <div class="md:col-span-3 flex flex-col justify-center">
+          <div class="text-mute font-mono text-[11px] tracking-wider">TASK 01</div>
+          <h3 class="font-display text-[24px] mt-1">Silk Grasp</h3>
+          <div class="mt-3 text-[13px] text-paper/70 leading-relaxed">Bimanual grasp of thin reflective silk. Head-to-head vs. real-data baseline.</div>
+          <div class="mt-4 flex items-baseline gap-2">
+            <span class="big-num text-[28px] text-accent">100.00%</span>
+            <span class="text-mute text-[12px]">n=23</span>
+          </div>
+        </div>
+        <div class="md:col-span-9 grid grid-cols-2 gap-4">
+          <div class="pair-cell">
+            <video src="video/sim-train-video/padded/grasp_silk_dr/static_cam.mp4" autoplay muted loop playsinline preload="metadata"></video>
+            <div class="pip-wrist left">
+              <video src="video/sim-train-video/padded/grasp_silk_dr/left_hand_cam.mp4" autoplay muted loop playsinline preload="metadata"></video>
+              <div class="pip-tag">L wrist</div>
+            </div>
+            <div class="pip-wrist right">
+              <video src="video/sim-train-video/padded/grasp_silk_dr/right_hand_cam.mp4" autoplay muted loop playsinline preload="metadata"></video>
+              <div class="pip-tag">R wrist</div>
+            </div>
+            <div class="absolute top-2 left-2 text-[10px] font-mono tracking-wider text-paper/80 bg-black/55 px-2 py-1 rounded z-[3]">SIM · POLICY INPUT</div>
+          </div>
+          <div class="pair-cell real">
+            <video src="video/real-video/static_cam/lift_silk.mp4" autoplay muted loop playsinline preload="metadata"></video>
+            <div class="absolute top-2 left-2 text-[10px] font-mono tracking-wider text-ink bg-accent px-2 py-1 rounded">REAL · ZERO-SHOT</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Row 2: Silk Unfold -->
+      <div class="grid md:grid-cols-12 gap-5 items-stretch">
+        <div class="md:col-span-3 flex flex-col justify-center">
+          <div class="text-mute font-mono text-[11px] tracking-wider">TASK 02</div>
+          <h3 class="font-display text-[24px] mt-1">Silk Unfolding</h3>
+          <div class="mt-3 text-[13px] text-paper/70 leading-relaxed">Recover flat layout from a draped configuration of reflective fabric.</div>
+          <div class="mt-4 flex items-baseline gap-2">
+            <span class="big-num text-[28px] text-accent">95.65%</span>
+            <span class="text-mute text-[12px]">n=23</span>
+          </div>
+        </div>
+        <div class="md:col-span-9 grid grid-cols-2 gap-4">
+          <div class="pair-cell">
+            <video src="video/sim-train-video/padded/flatten_silk/static_cam.mp4" autoplay muted loop playsinline preload="metadata"></video>
+            <div class="pip-wrist left">
+              <video src="video/sim-train-video/padded/flatten_silk/left_hand_cam.mp4" autoplay muted loop playsinline preload="metadata"></video>
+              <div class="pip-tag">L wrist</div>
+            </div>
+            <div class="pip-wrist right">
+              <video src="video/sim-train-video/padded/flatten_silk/right_hand_cam.mp4" autoplay muted loop playsinline preload="metadata"></video>
+              <div class="pip-tag">R wrist</div>
+            </div>
+            <div class="absolute top-2 left-2 text-[10px] font-mono tracking-wider text-paper/80 bg-black/55 px-2 py-1 rounded z-[3]">SIM · POLICY INPUT</div>
+          </div>
+          <div class="pair-cell real">
+            <video src="video/real-video/static_cam/flatten_silk.mp4" autoplay muted loop playsinline preload="metadata"></video>
+            <div class="absolute top-2 left-2 text-[10px] font-mono tracking-wider text-ink bg-accent px-2 py-1 rounded">REAL · ZERO-SHOT</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Row 3: Garment Folding -->
+      <div class="grid md:grid-cols-12 gap-5 items-stretch">
+        <div class="md:col-span-3 flex flex-col justify-center">
+          <div class="text-mute font-mono text-[11px] tracking-wider">TASK 03</div>
+          <h3 class="font-display text-[24px] mt-1">Garment Folding</h3>
+          <div class="mt-3 text-[13px] text-paper/70 leading-relaxed">Bimanual T-shirt full-fold with corner alignment.</div>
+          <div class="mt-4 flex items-baseline gap-2">
+            <span class="big-num text-[28px] text-accent">91.30%</span>
+            <span class="text-mute text-[12px]">n=23</span>
+          </div>
+        </div>
+        <div class="md:col-span-9 grid grid-cols-2 gap-4">
+          <div class="pair-cell">
+            <video src="video/sim-train-video/padded/fold_tshirt/static_cam.mp4" autoplay muted loop playsinline preload="metadata"></video>
+            <div class="pip-wrist left">
+              <video src="video/sim-train-video/padded/fold_tshirt/left_hand_cam.mp4" autoplay muted loop playsinline preload="metadata"></video>
+              <div class="pip-tag">L wrist</div>
+            </div>
+            <div class="pip-wrist right">
+              <video src="video/sim-train-video/padded/fold_tshirt/right_hand_cam.mp4" autoplay muted loop playsinline preload="metadata"></video>
+              <div class="pip-tag">R wrist</div>
+            </div>
+            <div class="absolute top-2 left-2 text-[10px] font-mono tracking-wider text-paper/80 bg-black/55 px-2 py-1 rounded z-[3]">SIM · POLICY INPUT</div>
+          </div>
+          <div class="pair-cell real">
+            <video src="video/real-video/static_cam/fold_tshirt.mp4" autoplay muted loop playsinline preload="metadata"></video>
+            <div class="absolute top-2 left-2 text-[10px] font-mono tracking-wider text-ink bg-accent px-2 py-1 rounded">REAL · ZERO-SHOT</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Row 4: Snack Packaging -->
+      <div class="grid md:grid-cols-12 gap-5 items-stretch">
+        <div class="md:col-span-3 flex flex-col justify-center">
+          <div class="text-mute font-mono text-[11px] tracking-wider">TASK 04</div>
+          <h3 class="font-display text-[24px] mt-1">Snack Packaging</h3>
+          <div class="mt-3 text-[13px] text-paper/70 leading-relaxed">Insertion into a thin plastic bag &mdash; an open category in prior sim-to-real work.</div>
+          <div class="mt-4 flex items-baseline gap-2">
+            <span class="big-num text-[28px] text-accent">86.96%</span>
+            <span class="text-mute text-[12px]">n=23</span>
+          </div>
+        </div>
+        <div class="md:col-span-9 grid grid-cols-2 gap-4">
+          <div class="pair-cell">
+            <video src="video/sim-train-video/padded/pack_snicker/static_cam.mp4" autoplay muted loop playsinline preload="metadata"></video>
+            <div class="pip-wrist left">
+              <video src="video/sim-train-video/padded/pack_snicker/left_hand_cam.mp4" autoplay muted loop playsinline preload="metadata"></video>
+              <div class="pip-tag">L wrist</div>
+            </div>
+            <div class="pip-wrist right">
+              <video src="video/sim-train-video/padded/pack_snicker/right_hand_cam.mp4" autoplay muted loop playsinline preload="metadata"></video>
+              <div class="pip-tag">R wrist</div>
+            </div>
+            <div class="absolute top-2 left-2 text-[10px] font-mono tracking-wider text-paper/80 bg-black/55 px-2 py-1 rounded z-[3]">SIM · POLICY INPUT</div>
+          </div>
+          <div class="pair-cell real">
+            <video src="video/real-video/cropped/pack_snickers.mp4" autoplay muted loop playsinline preload="metadata"></video>
+            <div class="absolute top-2 left-2 text-[10px] font-mono tracking-wider text-ink bg-accent px-2 py-1 rounded">REAL · ZERO-SHOT</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Row 5: Garment Unfolding -->
+      <div class="grid md:grid-cols-12 gap-5 items-stretch">
+        <div class="md:col-span-3 flex flex-col justify-center">
+          <div class="text-mute font-mono text-[11px] tracking-wider">TASK 05</div>
+          <h3 class="font-display text-[24px] mt-1">Garment Unfolding</h3>
+          <div class="mt-3 text-[13px] text-paper/70 leading-relaxed">Recover flat T-shirt layout from a wrinkled start.</div>
+          <div class="mt-4 flex items-baseline gap-2">
+            <span class="big-num text-[28px] text-accent">82.61%</span>
+            <span class="text-mute text-[12px]">n=23</span>
+          </div>
+        </div>
+        <div class="md:col-span-9 grid grid-cols-2 gap-4">
+          <div class="pair-cell">
+            <video src="video/sim-train-video/padded/flatten_tshirt/static_cam.mp4" autoplay muted loop playsinline preload="metadata"></video>
+            <div class="pip-wrist left">
+              <video src="video/sim-train-video/padded/flatten_tshirt/left_hand_cam.mp4" autoplay muted loop playsinline preload="metadata"></video>
+              <div class="pip-tag">L wrist</div>
+            </div>
+            <div class="pip-wrist right">
+              <video src="video/sim-train-video/padded/flatten_tshirt/right_hand_cam.mp4" autoplay muted loop playsinline preload="metadata"></video>
+              <div class="pip-tag">R wrist</div>
+            </div>
+            <div class="absolute top-2 left-2 text-[10px] font-mono tracking-wider text-paper/80 bg-black/55 px-2 py-1 rounded z-[3]">SIM · POLICY INPUT</div>
+          </div>
+          <div class="pair-cell real">
+            <video src="video/real-video/static_cam/flatten_tshirt.mp4" autoplay muted loop playsinline preload="metadata"></video>
+            <div class="absolute top-2 left-2 text-[10px] font-mono tracking-wider text-ink bg-accent px-2 py-1 rounded">REAL · ZERO-SHOT</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Five-task qualitative rollout figure -->
+    <div class="mt-16">
+      <div class="tag mb-3"><span class="dot"></span>Qualitative rollout &middot; five tasks</div>
+      <div class="card p-3 md:p-4 overflow-hidden">
+        <img src="five_task_rollout-1.png" alt="Five-task sim-to-real rollout keyframes" class="w-full h-auto rounded-sm" />
+      </div>
+      <p class="text-mute text-[12px] mt-2 font-mono tracking-wider text-center">SAME POLICY CHECKPOINT &middot; SIM ROLLOUT KEYFRAMES VS. ZERO-SHOT REAL DEPLOYMENT</p>
+    </div>
+
+  </div>
+</section>
+
+<!-- SYSTEM OVERVIEW -->
+<section id="system" class="py-24 hairline">
+  <div class="max-w-[1280px] mx-auto px-6">
+    <div class="tag mb-4"><span class="dot"></span>System</div>
+    <h2 class="font-display text-[34px] md:text-[44px] leading-[1.1] tracking-tight max-w-3xl mb-10">
+      Four components, one zero-shot pipeline.
+    </h2>
+    <div class="card p-4 md:p-6 overflow-hidden">
+      <img src="overview-1.png" alt="SimWeaver system architecture: Asset, Sim, Trajectory Generation, Domain Randomization, VLA, Real Deployment" class="w-full h-auto rounded-sm" />
+    </div>
+    <p class="text-mute text-[13px] mt-4 max-w-3xl leading-relaxed">
+      Assets feed the simulator; SimWeaver-Syn produces 200 deterministic demonstrations per task from a single seed; domain randomization renders varied scenes; the demonstrations train a $\pi_{0.5}$ VLA policy deployed zero-shot on real hardware.
+    </p>
+  </div>
+</section>
+
+<!-- METHOD -->
+<section id="method" class="py-24 hairline">
+  <div class="max-w-[1280px] mx-auto px-6">
+    <div class="tag mb-4"><span class="dot"></span>Method</div>
+    <h2 class="font-display text-[34px] md:text-[44px] leading-[1.1] tracking-tight max-w-3xl mb-12">
+      Each component targets one of the three structural barriers.
+    </h2>
+
+    <!-- Asset — garments + bags -->
+    <div class="mb-24">
+      <div class="text-mute font-mono text-[12px] tracking-wider mb-2">COMPONENT · ASSET</div>
+      <h3 class="font-display text-[28px] mb-4">SimWeaver-Asset</h3>
+      <p class="text-paper/80 leading-relaxed text-[15px] max-w-3xl mb-8">
+        Extensible asset framework supporting arbitrary mesh import and single-image asset generation, covering <span class="text-accent">garments and bags</span>.
+      </p>
+
+      <div class="card p-4 overflow-hidden" style="background:#f5f1ea;">
+        <img src="assets/assets_2x5.png" alt="Garment and bag assets" class="w-full h-auto block" />
+      </div>
+    </div>
+
+    <!-- Sim -->
+    <div class="grid md:grid-cols-12 gap-8 mb-24 items-center">
+      <div class="md:col-span-5 order-1">
+        <div class="text-mute font-mono text-[12px] tracking-wider mb-2">COMPONENT · SIM</div>
+        <h3 class="font-display text-[28px] mb-4">SimWeaver-Sim</h3>
+        <p class="text-paper/80 leading-relaxed text-[15px] mb-5">
+          Robust collision handling, penetration prevention, and trajectory-replay determinism &mdash; addressing contact-reliability failures of widely-used solvers on thin fabrics.
+        </p>
+
+        <div class="card p-4 overflow-hidden">
+          <div class="text-mute font-mono text-[11px] tracking-wider mb-3">RELIABILITY ON BIMANUAL GARMENT GRASPING</div>
+          <table class="data-table">
+            <thead>
+              <tr><th>Simulator</th><th>Task ↑</th><th>Pen. ↓</th><th>ms ↓</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>Isaac Sim</td><td>0.0%</td><td>0.0%</td><td>7.80</td></tr>
+              <tr><td>Newton VBD</td><td>0.0%</td><td>77.5%</td><td>10.38</td></tr>
+              <tr class="ours"><td>SimWeaver</td><td>100.0%</td><td>0.0%</td><td>4.44</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="md:col-span-7 order-2">
+        <div class="card p-3 overflow-hidden mb-3">
+          <img src="sim_failures.jpg" alt="Simulator failure modes: Isaac Sim instability, VBD penetration, SimWeaver stable" class="w-full h-auto rounded-sm" />
+        </div>
+        <p class="text-mute text-[11px] font-mono tracking-wider text-center">FAILURE-MODE COMPARISON UNDER IDENTICAL TRAJECTORIES</p>
+      </div>
+    </div>
+
+    <!-- Syn -->
+    <div class="grid md:grid-cols-12 gap-8 mb-24 items-center">
+      <div class="md:col-span-5">
+        <div class="text-mute font-mono text-[12px] tracking-wider mb-2">COMPONENT · SYN</div>
+        <h3 class="font-display text-[28px] mb-4">SimWeaver-Syn <span class="text-mute text-[18px] align-middle">/ TopoSynth</span></h3>
+        <p class="text-paper/80 leading-relaxed text-[15px] mb-5">
+          Topology-aware trajectory synthesis. Generates high-quality, deterministic demonstrations from a <span class="text-accent">single seed</span> &mdash; no learned generative models, no teleoperation, no post-hoc filtering.
+        </p>
+
+        <div class="card p-4 overflow-hidden">
+          <div class="text-mute font-mono text-[11px] tracking-wider mb-3">SYNTHESIS QUALITY · T-SHIRT FOLD · n=100</div>
+          <table class="data-table">
+            <thead>
+              <tr><th>Method</th><th>Pass ↑</th><th>Replay 100× ↑</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>SIM1</td><td>24.0%</td><td>13 / 100</td></tr>
+              <tr class="ours"><td>SimWeaver-Syn</td><td>97.2%</td><td>100 / 100</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="md:col-span-7">
+        <div class="gallery-card">
+          <video src="video/simWeaver-flatten-tshirt.mp4" autoplay muted loop playsinline preload="metadata"></video>
+          <div class="label">Single-seed deterministic synthesis</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Real — three panels: initial state · augmentation · DR -->
+    <div>
+      <div class="text-mute font-mono text-[12px] tracking-wider mb-2">COMPONENT · REAL</div>
+      <h3 class="font-display text-[28px] mb-2">SimWeaver-Real</h3>
+      <p class="text-paper/80 leading-relaxed text-[15px] max-w-3xl mb-10">
+        Trains a $\pi_{0.5}$ VLA policy directly transferable to real hardware via three randomization axes: <span class="text-accent">initial-state diversity</span>, deformable-aware <span class="text-accent">image augmentation</span>, and scene-level <span class="text-accent">domain randomization</span> over lighting, background, and texture.
+      </p>
+
+      <div class="grid md:grid-cols-3 gap-5">
+
+        <!-- Panel 1: Initial state diversity -->
+        <div class="card p-5">
+          <div class="text-mute font-mono text-[11px] tracking-wider mb-3">AXIS 01 · INITIAL STATE</div>
+          <h4 class="font-display text-[20px] mb-3">Cloth initialization</h4>
+          <div class="grid grid-cols-2 gap-1.5 mb-3">
+            <img src="video/dr_train_episodes/init_state_0.jpg" class="w-full aspect-video object-cover rounded-sm" alt="Initial cloth state 1">
+            <img src="video/dr_train_episodes/init_state_1.jpg" class="w-full aspect-video object-cover rounded-sm" alt="Initial cloth state 2">
+            <img src="video/dr_train_episodes/init_state_2.jpg" class="w-full aspect-video object-cover rounded-sm" alt="Initial cloth state 3">
+            <img src="video/dr_train_episodes/init_state_3.jpg" class="w-full aspect-video object-cover rounded-sm" alt="Initial cloth state 4">
+          </div>
+          <p class="text-paper/70 text-[13px] leading-relaxed">
+            Each episode samples a fresh starting configuration &mdash; draping, rotation, and folding state varied per seed.
+          </p>
+        </div>
+
+        <!-- Panel 2: Image augmentation -->
+        <div class="card p-5">
+          <div class="text-mute font-mono text-[11px] tracking-wider mb-3">AXIS 02 · IMAGE AUGMENTATION</div>
+          <h4 class="font-display text-[20px] mb-3">Deformable-aware aug</h4>
+          <div class="aspect-[16/10] rounded-sm overflow-hidden mb-3" style="background: repeating-linear-gradient(45deg, #141312 0 8px, #0e0d0b 8px 16px); display:flex; align-items:center; justify-content:center;">
+            <div class="text-center text-mute text-[11px] font-mono tracking-wider px-4">
+              Augmentation pipeline figure<br/>
+              <span class="text-paper/60">drop into website/aug_pipeline.png</span>
+            </div>
+          </div>
+          <p class="text-paper/70 text-[13px] leading-relaxed">
+            Photometric and geometric augmentation tailored to cloth visual states &mdash; color shift, blur, and crop applied post-render.
+          </p>
+        </div>
+
+        <!-- Panel 3: Scene DR -->
+        <div class="card p-5">
+          <div class="text-mute font-mono text-[11px] tracking-wider mb-3">AXIS 03 · SCENE RANDOMIZATION</div>
+          <h4 class="font-display text-[20px] mb-3">Lighting · Background · Texture</h4>
+          <div class="grid grid-cols-2 gap-1.5 mb-3">
+            <div class="aspect-video rounded-sm overflow-hidden bg-black">
+              <video src="video/dr_train_episodes/dr_sample_0.mp4" autoplay muted loop playsinline preload="metadata" class="w-full h-full object-cover"></video>
+            </div>
+            <div class="aspect-video rounded-sm overflow-hidden bg-black">
+              <video src="video/dr_train_episodes/dr_sample_1.mp4" autoplay muted loop playsinline preload="metadata" class="w-full h-full object-cover"></video>
+            </div>
+            <div class="aspect-video rounded-sm overflow-hidden bg-black">
+              <video src="video/dr_train_episodes/dr_sample_2.mp4" autoplay muted loop playsinline preload="metadata" class="w-full h-full object-cover"></video>
+            </div>
+            <div class="aspect-video rounded-sm overflow-hidden bg-black">
+              <video src="video/dr_train_episodes/dr_sample_3.mp4" autoplay muted loop playsinline preload="metadata" class="w-full h-full object-cover"></video>
+            </div>
+          </div>
+          <p class="text-paper/70 text-[13px] leading-relaxed">
+            Sobol quasi-random sampling over lighting, table material, and cloth color &mdash; rendered live from <span class="text-paper">static_cam</span>.
+          </p>
+        </div>
+
+      </div>
+
+      <p class="text-paper/65 text-[13px] leading-relaxed mt-10 max-w-3xl">
+        Hardware: bimanual Piper 6-DOF arms with parallel-jaw grippers &middot; 1 overhead + 2 wrist-mounted RealSense D435i cameras. Same policy checkpoint deploys zero-shot across all five tasks.
+      </p>
+    </div>
+
+  </div>
+</section>
+
+<!-- SILK OOD -->
+<section id="silk-ood" class="py-24 hairline">
+  <div class="max-w-[1280px] mx-auto px-6">
+    <div class="tag mb-4"><span class="dot"></span>Generalization · Silk Grasping</div>
+    <h2 class="font-display text-[34px] md:text-[44px] leading-[1.1] tracking-tight max-w-4xl mb-4">
+      Sim-trained policies don&rsquo;t just match real-data training &mdash; they <span class="text-accent">surpass it</span> under visual distribution shift.
+    </h2>
+    <p class="text-mute text-[15px] max-w-3xl mb-12">
+      The real-data baseline (100 demos) collapses under modest distribution shifts. SimWeaver (200 sim demos + DR) maintains 100% across all three axes. All gaps significant under single-tail Fisher (&alpha;=0.05).
+    </p>
+
+    <div class="grid md:grid-cols-12 gap-6">
+
+      <!-- Bar chart -->
+      <div class="md:col-span-8 card p-7">
+        <div class="text-mute font-mono text-[11px] tracking-wider mb-6">REAL VS. SIM · n=23 PER CELL</div>
+
+        <div class="flex items-end gap-8 md:gap-12 justify-around" style="height:320px;">
+
+          <!-- Texture -->
+          <div class="flex flex-col items-center flex-1">
+            <div class="text-[11px] text-mute font-mono mb-3 tracking-wider">TEXTURE</div>
+            <div class="flex items-end gap-3 h-[230px]">
+              <div class="flex flex-col items-center justify-end h-full">
+                <div class="text-[12px] text-mute mb-1 stat-num">13.0%</div>
+                <div style="width:34px; height:13%; background:#3a3934;"></div>
+              </div>
+              <div class="flex flex-col items-center justify-end h-full">
+                <div class="text-[12px] text-accent mb-1 stat-num">100%</div>
+                <div style="width:34px; height:100%; background:var(--accent);"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Lighting -->
+          <div class="flex flex-col items-center flex-1">
+            <div class="text-[11px] text-mute font-mono mb-3 tracking-wider">LIGHTING</div>
+            <div class="flex items-end gap-3 h-[230px]">
+              <div class="flex flex-col items-center justify-end h-full">
+                <div class="text-[12px] text-mute mb-1 stat-num">69.6%</div>
+                <div style="width:34px; height:69.6%; background:#3a3934;"></div>
+              </div>
+              <div class="flex flex-col items-center justify-end h-full">
+                <div class="text-[12px] text-accent mb-1 stat-num">100%</div>
+                <div style="width:34px; height:100%; background:var(--accent);"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Rotation -->
+          <div class="flex flex-col items-center flex-1">
+            <div class="text-[11px] text-mute font-mono mb-3 tracking-wider">ROTATION</div>
+            <div class="flex items-end gap-3 h-[230px]">
+              <div class="flex flex-col items-center justify-end h-full">
+                <div class="text-[12px] text-mute mb-1 stat-num">8.7%</div>
+                <div style="width:34px; height:8.7%; background:#3a3934;"></div>
+              </div>
+              <div class="flex flex-col items-center justify-end h-full">
+                <div class="text-[12px] text-accent mb-1 stat-num">100%</div>
+                <div style="width:34px; height:100%; background:var(--accent);"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Legend -->
+        <div class="flex items-center justify-center gap-8 mt-8 text-[12px] font-mono tracking-wider">
+          <div class="flex items-center gap-2"><span style="width:14px;height:10px;background:#3a3934;display:inline-block;"></span><span class="text-mute">REAL · 100 DEMOS</span></div>
+          <div class="flex items-center gap-2"><span style="width:14px;height:10px;background:var(--accent);display:inline-block;"></span><span class="text-accent">SIMWEAVER · 200 DEMOS + DR</span></div>
+        </div>
+      </div>
+
+      <div class="md:col-span-4 space-y-4">
+        <div class="card p-6">
+          <div class="big-num text-[42px] text-accent">+30 to +91</div>
+          <div class="text-mute text-[13px] mt-1">percentage-point gain under shift</div>
+          <p class="text-paper/75 text-[14px] mt-3 leading-relaxed">
+            Real-data training overfits to the visual conditions of the demonstration distribution. Sim training with deformable-aware DR generalizes.
+          </p>
+        </div>
+        <div class="card p-6">
+          <div class="big-num text-[24px]">Sample-efficient too</div>
+          <p class="text-paper/75 text-[14px] mt-3 leading-relaxed">
+            At small data scales, the sim-trained policy already outperforms real-data training in-distribution &mdash; reaching 100% at n=200.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- WHY RGB -->
+<section class="py-24 hairline">
+  <div class="max-w-[1280px] mx-auto px-6">
+    <div class="grid md:grid-cols-12 gap-10 items-center">
+      <div class="md:col-span-5">
+        <div class="tag mb-4"><span class="dot"></span>Why RGB</div>
+        <h2 class="font-display text-[34px] md:text-[40px] leading-[1.1] tracking-tight">
+          DP3 point-cloud baseline fails on all five real tasks.
+        </h2>
+        <p class="text-mute mt-5 text-[15px] leading-relaxed">
+          A DP3 baseline trained on the same 200 demonstrations fails to deploy: consumer RGBD sensors drop coverage on matte-black grippers, dark silk, and reflective plastic-bag surfaces. SimWeaver&rsquo;s RGB formulation succeeds where geometric pipelines silently lose data.
+        </p>
+      </div>
+      <div class="md:col-span-7 grid grid-cols-2 gap-5">
+        <div class="card p-3 aspect-square flex items-center justify-center text-mute text-[12px] font-mono tracking-wider text-center">
+          PCD scan failure<br/>place <span class="text-paper">pcd_scan_failure.jpeg</span><br/>in website/
+        </div>
+        <div class="card p-0 overflow-hidden aspect-square">
+          <video src="video/real-video/continous_sucess_grasp_silk_dr.mp4" autoplay muted loop playsinline preload="metadata" class="w-full h-full object-cover"></video>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- GALLERY -->
+<section id="gallery" class="py-24 hairline">
+  <div class="max-w-[1280px] mx-auto px-6">
+    <div class="tag mb-4"><span class="dot"></span>Render gallery</div>
+    <h2 class="font-display text-[34px] md:text-[44px] leading-[1.1] tracking-tight max-w-3xl mb-3">
+      Render Gallery &mdash; diverse backgrounds &middot; diverse objects.
+    </h2>
+    <p class="text-mute text-[15px] max-w-2xl mb-10">
+      Additional renderings of scenes and asset variants.
+    </p>
+
+    <!-- Main 4 cinematic in 2x2 grid (the hero rotation, full length) -->
+    <div class="grid md:grid-cols-2 gap-5">
+      <div class="gallery-card">
+        <video src="video/simWeaver-flatten-silk.mp4" autoplay muted loop playsinline preload="metadata"></video>
+        <div class="label">Silk Unfolding · Balcony</div>
+      </div>
+      <div class="gallery-card">
+        <video src="video/simWeaver-flatten-tshirt.mp4" autoplay muted loop playsinline preload="metadata"></video>
+        <div class="label">Garment Unfolding · Balcony</div>
+      </div>
+      <div class="gallery-card">
+        <video src="video/simWeaver-pack-snickers.mp4" autoplay muted loop playsinline preload="metadata"></video>
+        <div class="label">Snack into Bag · Kitchen</div>
+      </div>
+      <div class="gallery-card">
+        <video src="video/simWeaver-fold-tshirt2.mp4" autoplay muted loop playsinline preload="metadata"></video>
+        <div class="label">Garment Folding · Bedroom</div>
+      </div>
+    </div>
+
+    <!-- Bag asset variants (3 in a row) -->
+    <div class="mt-12">
+      <div class="text-mute font-mono text-[11px] tracking-wider mb-3">BAG ASSET VARIANTS &middot; PLASTIC / CANVAS / KNIT</div>
+      <div class="grid grid-cols-3 gap-3">
+        <div class="gallery-card aspect-[4/5]">
+          <video src="video/bag_plastic.mp4" autoplay muted loop playsinline preload="metadata"></video>
+          <div class="label">Plastic</div>
+        </div>
+        <div class="gallery-card aspect-[4/5]">
+          <video src="video/bag_canvas.mp4" autoplay muted loop playsinline preload="metadata"></video>
+          <div class="label">Canvas</div>
+        </div>
+        <div class="gallery-card aspect-[4/5]">
+          <video src="video/bag_knit.mp4" autoplay muted loop playsinline preload="metadata"></video>
+          <div class="label">Knit</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Garment color variants (3 in a row) -->
+    <div class="mt-10">
+      <div class="text-mute font-mono text-[11px] tracking-wider mb-3">GARMENT COLOR VARIANTS &middot; PINK / BLUE / YELLOW</div>
+      <div class="grid grid-cols-3 gap-3">
+        <div class="gallery-card aspect-[4/5]">
+          <video src="video/dr_pink_shirt.mp4" autoplay muted loop playsinline preload="metadata"></video>
+          <div class="label">Pink</div>
+        </div>
+        <div class="gallery-card aspect-[4/5]">
+          <video src="video/dr_blue_shirt.mp4" autoplay muted loop playsinline preload="metadata"></video>
+          <div class="label">Blue</div>
+        </div>
+        <div class="gallery-card aspect-[4/5]">
+          <video src="video/dr_yellow_shirt.mp4" autoplay muted loop playsinline preload="metadata"></video>
+          <div class="label">Yellow</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- RESOURCES -->
+<section id="resources" class="py-24 hairline">
+  <div class="max-w-[1280px] mx-auto px-6">
+    <div class="grid md:grid-cols-12 gap-10">
+      <div class="md:col-span-5">
+        <div class="tag mb-4"><span class="dot"></span>Resources</div>
+        <h2 class="font-display text-[34px] md:text-[40px] leading-[1.1] tracking-tight mb-6">
+          Paper · Code · Video
+        </h2>
+        <div class="space-y-3">
+          <a class="card block px-5 py-4 hover:border-accent transition" href="#">
+            <div class="flex items-center justify-between">
+              <div>
+                <div class="font-display text-[17px]">Paper (arXiv)</div>
+                <div class="text-mute text-[12px] mt-1">PDF · supplementary</div>
+              </div>
+              <div class="text-accent">↗</div>
+            </div>
+          </a>
+          <a class="card block px-5 py-4 hover:border-accent transition" href="#">
+            <div class="flex items-center justify-between">
+              <div>
+                <div class="font-display text-[17px]">Code & Assets</div>
+                <div class="text-mute text-[12px] mt-1">GitHub · MIT-licensed</div>
+              </div>
+              <div class="text-accent">↗</div>
+            </div>
+          </a>
+          <a class="card block px-5 py-4 hover:border-accent transition" href="#">
+            <div class="flex items-center justify-between">
+              <div>
+                <div class="font-display text-[17px]">Supplementary Video</div>
+                <div class="text-mute text-[12px] mt-1">5 tasks · full reel</div>
+              </div>
+              <div class="text-accent">↗</div>
+            </div>
+          </a>
+        </div>
+      </div>
+      <div class="md:col-span-7">
+        <div class="tag mb-4"><span class="dot"></span>BibTeX</div>
+<pre class="bib">@inproceedings{simweaver2026,
+  title     = {SimWeaver: Zero-Shot RGB Sim-to-Real for Deformable Manipulation},
+  author    = {Anonymous},
+  booktitle = {Advances in Neural Information Processing Systems},
+  year      = {2026}
+}</pre>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer class="py-12 hairline">
+  <div class="max-w-[1280px] mx-auto px-6 flex flex-col md:flex-row items-center justify-between gap-3 text-[12px] text-mute font-mono tracking-wider">
+    <div>© 2026 · SIMWEAVER · ANONYMOUS</div>
+    <div>NEURIPS 2026 SUBMISSION</div>
+  </div>
+</footer>
+
+<!-- ROW SYNC — all videos in each row have matched durations; sync directly on currentTime -->
+<script>
+(() => {
+  document.querySelectorAll('#evidence .md\\:col-span-9.grid.grid-cols-2').forEach(row => {
+    const videos = Array.from(row.querySelectorAll('video'));
+    if (videos.length <= 1) return;
+    const master = videos[0];
+    const slaves = videos.slice(1);
+
+    // Hard reset to 0 once all are buffered
+    const tryHardReset = () => {
+      if (videos.every(v => v.readyState >= 2)) {
+        videos.forEach(v => { try { v.currentTime = 0; } catch(e) {} });
+        videos.forEach(v => v.play().catch(()=>{}));
+      }
+    };
+    videos.forEach(v => v.addEventListener('loadeddata', tryHardReset, { once: true }));
+
+    // Soft sync every 500ms — pull slaves to master's currentTime if drift > 0.25s
+    setInterval(() => {
+      if (!isFinite(master.duration) || master.duration <= 0) return;
+      const t = master.currentTime;
+      slaves.forEach(v => {
+        if (!isFinite(v.duration) || v.duration <= 0) return;
+        if (Math.abs(v.currentTime - t) > 0.25) {
+          try { v.currentTime = t; } catch(e) {}
+        }
+        if (v.paused && !master.paused) v.play().catch(()=>{});
+      });
+    }, 500);
+
+    // Loop snap — when master wraps back to start, force slaves with it
+    master.addEventListener('timeupdate', () => {
+      if (master.currentTime < 0.3 && slaves.some(v => v.currentTime > master.duration - 1)) {
+        slaves.forEach(v => { try { v.currentTime = master.currentTime; } catch(e) {} });
+      }
+    });
+  });
+})();
+</script>
+
+<!-- HERO JS — single-element player with polling-based auto-advance (bulletproof) -->
+<script>
+(() => {
+  const clips = [
+    { src: "video/simWeaver-flatten-silk.mp4",   label: "Silk Unfolding",     scene: "Balcony · sun",        stat: "95.65%" },
+    { src: "video/simWeaver-flatten-tshirt.mp4", label: "Garment Unfolding",  scene: "Balcony · sun",        stat: "82.61%" },
+    { src: "video/simWeaver-pack-snickers.mp4",  label: "Snack Packaging",    scene: "Kitchen",              stat: "86.96%" },
+    { src: "video/simWeaver-fold-tshirt2.mp4",   label: "Garment Folding",    scene: "Bedroom · oak table",  stat: "91.30%" },
+  ];
+
+  const video   = document.getElementById('hero-video');
+  const labelEl = document.getElementById('clip-label');
+  const sceneEl = document.getElementById('clip-scene');
+  const statEl  = document.getElementById('clip-stat-num');
+  const chips   = Array.from(document.querySelectorAll('#chip-row .chip'));
+
+  let currentIdx   = 0;
+  let opToken      = 0;     // every showClip increments; older callbacks self-cancel
+  let advanceLock  = 0;     // unix-ms timestamp; debounces multiple end signals
+
+  function updateLabels(i) {
+    const c = clips[i];
+    labelEl.textContent = c.label;
+    sceneEl.textContent = c.scene;
+    statEl.textContent  = c.stat;
+  }
+
+  function animateChip(i, duration) {
+    chips.forEach((c, j) => {
+      c.classList.toggle('active', j === i);
+      const bar = c.querySelector('.progress-bar');
+      bar.style.transition = 'none';
+      bar.style.transform  = 'scaleX(0)';
+    });
+    requestAnimationFrame(() => {
+      const bar = chips[i].querySelector('.progress-bar');
+      void bar.offsetWidth;   // force reflow so the new transition picks up
+      bar.style.transition = `transform ${duration}s linear`;
+      bar.style.transform  = 'scaleX(1)';
+    });
+  }
+
+  // Show clip i. Fades out, swaps src, fades in, starts playback.
+  function showClip(i, isReplay) {
+    if (i === currentIdx && !isReplay) return;
+    const myToken = ++opToken;
+    video.style.opacity = '0';
+
+    setTimeout(() => {
+      if (myToken !== opToken) return;
+      video.pause();
+      video.src = clips[i].src;
+      video.muted = true;
+      video.load();
+
+      const start = () => {
+        if (myToken !== opToken) return;
+        try { video.currentTime = 0; } catch(e) {}
+        video.play().catch(()=>{});
+        video.style.opacity = '1';
+        currentIdx  = i;
+        advanceLock = Date.now();
+        updateLabels(i);
+        const dur = isFinite(video.duration) && video.duration > 0 ? video.duration : 8;
+        animateChip(i, dur);
+      };
+
+      if (video.readyState >= 2) {
+        start();
+      } else {
+        const onReady = () => {
+          video.removeEventListener('loadeddata', onReady);
+          video.removeEventListener('canplay',    onReady);
+          start();
+        };
+        video.addEventListener('loadeddata', onReady);
+        video.addEventListener('canplay',    onReady);
+      }
+    }, 220);
+  }
+
+  function advance() {
+    if (Date.now() - advanceLock < 1000) return;  // debounce
+    showClip((currentIdx + 1) % clips.length);
+  }
+
+  // THREE redundant advance triggers — at least one will fire in every browser.
+  // (1) ended event
+  video.addEventListener('ended', advance);
+  // (2) timeupdate near-end
+  video.addEventListener('timeupdate', () => {
+    if (video.duration > 0 && video.currentTime >= video.duration - 0.2) advance();
+  });
+  // (3) Polling fallback every 250ms — catches edge cases where neither event fires
+  setInterval(() => {
+    if (video.paused || !isFinite(video.duration) || video.duration === 0) return;
+    if (video.currentTime >= video.duration - 0.2) advance();
+  }, 250);
+
+  // Chip clicks → jump to that clip; auto-advance continues from there.
+  chips.forEach((chip, i) => {
+    chip.addEventListener('click', () => {
+      showClip(i, /*isReplay=*/ i === currentIdx);
+    });
+  });
+
+  // Initial boot
+  video.muted = true;
+  video.src = clips[0].src;
+  video.load();
+  const bootStart = () => {
+    video.play().catch(()=>{});
+    advanceLock = Date.now();
+    updateLabels(0);
+    const dur = isFinite(video.duration) && video.duration > 0 ? video.duration : 8;
+    animateChip(0, dur);
+  };
+  if (video.readyState >= 1) bootStart();
+  else video.addEventListener('loadedmetadata', bootStart, { once: true });
+})();
+</script>
+
+</body>
+</html>
