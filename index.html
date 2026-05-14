@@ -805,82 +805,198 @@
       The real-data baseline (100 demos) collapses under modest distribution shifts. SimWeaver (200 sim demos + DR) maintains 100% across all three axes. All gaps significant under single-tail Fisher (&alpha;=0.05).
     </p>
 
-    <div class="grid md:grid-cols-12 gap-6">
+    <!-- (A) Sample efficiency · concise text left, big curve right -->
+    <div class="grid md:grid-cols-12 gap-8 items-center mb-10">
 
-      <!-- Bar chart -->
-      <div class="md:col-span-8 card p-7">
-        <div class="text-mute font-mono text-[11px] tracking-wider mb-6">REAL VS. SIM · n=23 PER CELL</div>
+      <div class="md:col-span-3">
+        <div class="text-mute font-mono text-[11px] tracking-wider mb-2">(A) SAMPLE EFFICIENCY</div>
+        <h3 class="font-display text-[26px] md:text-[30px] leading-[1.15] mb-4">
+          SimWeaver matches <span class="text-accent">real-data efficiency</span>.
+        </h3>
+        <p class="text-paper/70 text-[14px] leading-relaxed">
+          Sim + DR scales as efficiently as teleop, and pushes further at the top end.
+        </p>
+      </div>
 
-        <div class="flex items-end gap-8 md:gap-12 justify-around" style="height:320px;">
+      <div class="md:col-span-9 card p-6 overflow-hidden">
+          <!-- Inline SVG curve. Domain: demos = {25,50,100,200} log2. Range: success 0-100% -->
+          <svg viewBox="0 0 540 280" xmlns="http://www.w3.org/2000/svg" class="w-full h-auto" style="display:block;">
+            <defs>
+              <style>
+                .axis-line { stroke: #2a2826; stroke-width: 1; }
+                .grid-line { stroke: #1a1916; stroke-width: 1; stroke-dasharray: 2 3; }
+                .axis-text { fill: #8a8580; font: 11px 'JetBrains Mono', monospace; letter-spacing: 0.04em; }
+                .axis-label { fill: #8a8580; font: 10px 'JetBrains Mono', monospace; letter-spacing: 0.08em; text-transform: uppercase; }
+                .line-real { stroke: #c97a55; stroke-width: 2.2; fill: none; }
+                .line-sim  { stroke: #e8c547; stroke-width: 2.6; fill: none; }
+                .dot-real  { fill: #c97a55; }
+                .dot-sim   { fill: #e8c547; }
+                .err       { stroke-width: 1.4; opacity: 0.55; }
+                .err.real  { stroke: #c97a55; }
+                .err.sim   { stroke: #e8c547; }
+                .ann       { font: 11px 'JetBrains Mono', monospace; }
+              </style>
+            </defs>
 
-          <!-- Texture -->
-          <div class="flex flex-col items-center flex-1">
-            <div class="text-[11px] text-mute font-mono mb-3 tracking-wider">TEXTURE</div>
-            <div class="flex items-end gap-3 h-[230px]">
-              <div class="flex flex-col items-center justify-end h-full">
-                <div class="text-[12px] text-mute mb-1 stat-num">13.0%</div>
-                <div style="width:34px; height:13%; background:#3a3934;"></div>
-              </div>
-              <div class="flex flex-col items-center justify-end h-full">
-                <div class="text-[12px] text-accent mb-1 stat-num">100%</div>
-                <div style="width:34px; height:100%; background:var(--accent);"></div>
-              </div>
-            </div>
-          </div>
+            <!-- Y grid + tick labels (no axis title) -->
+            <g>
+              <line class="grid-line" x1="60" y1="30"  x2="510" y2="30"/>
+              <line class="grid-line" x1="60" y1="150" x2="510" y2="150"/>
+              <line class="axis-line" x1="60" y1="240" x2="510" y2="240"/>
+              <text class="axis-text" x="50" y="34"  text-anchor="end">100%</text>
+              <text class="axis-text" x="50" y="154" text-anchor="end">50%</text>
+              <text class="axis-text" x="50" y="244" text-anchor="end">0%</text>
+            </g>
 
-          <!-- Lighting -->
-          <div class="flex flex-col items-center flex-1">
-            <div class="text-[11px] text-mute font-mono mb-3 tracking-wider">LIGHTING</div>
-            <div class="flex items-end gap-3 h-[230px]">
-              <div class="flex flex-col items-center justify-end h-full">
-                <div class="text-[12px] text-mute mb-1 stat-num">69.6%</div>
-                <div style="width:34px; height:69.6%; background:#3a3934;"></div>
-              </div>
-              <div class="flex flex-col items-center justify-end h-full">
-                <div class="text-[12px] text-accent mb-1 stat-num">100%</div>
-                <div style="width:34px; height:100%; background:var(--accent);"></div>
-              </div>
-            </div>
-          </div>
+            <!-- X tick labels only (demo counts; no axis title) -->
+            <g>
+              <text class="axis-text" x="60"  y="262" text-anchor="middle">25</text>
+              <text class="axis-text" x="210" y="262" text-anchor="middle">50</text>
+              <text class="axis-text" x="360" y="262" text-anchor="middle">100</text>
+              <text class="axis-text" x="510" y="262" text-anchor="middle">200 demos</text>
+            </g>
 
-          <!-- Rotation -->
-          <div class="flex flex-col items-center flex-1">
-            <div class="text-[11px] text-mute font-mono mb-3 tracking-wider">ROTATION</div>
-            <div class="flex items-end gap-3 h-[230px]">
-              <div class="flex flex-col items-center justify-end h-full">
-                <div class="text-[12px] text-mute mb-1 stat-num">8.7%</div>
-                <div style="width:34px; height:8.7%; background:#3a3934;"></div>
-              </div>
-              <div class="flex flex-col items-center justify-end h-full">
-                <div class="text-[12px] text-accent mb-1 stat-num">100%</div>
-                <div style="width:34px; height:100%; background:var(--accent);"></div>
-              </div>
-            </div>
-          </div>
-        </div>
+            <!-- Helper macros (manually positioned):
+                 success% → y = 240 - (success/100)*180   (180 = 240-30 plot height for 0-100%)
+                 25→x=60, 50→x=210, 100→x=360, 200→x=510 -->
 
-        <!-- Legend -->
-        <div class="flex items-center justify-center gap-8 mt-8 text-[12px] font-mono tracking-wider">
-          <div class="flex items-center gap-2"><span style="width:14px;height:10px;background:#3a3934;display:inline-block;"></span><span class="text-mute">REAL · 100 DEMOS</span></div>
-          <div class="flex items-center gap-2"><span style="width:14px;height:10px;background:var(--accent);display:inline-block;"></span><span class="text-accent">SIMWEAVER · 200 DEMOS + DR</span></div>
+            <!-- Real CI error bars (orange) at (25, 50, 100) -->
+            <!-- real 25  : 0%   CI [0.0, 14.3]   → y_lo = 240, y_hi = 240 - 14.3*1.8 = 214.3 -->
+            <line class="err real" x1="60"  y1="240" x2="60"  y2="214.3"/>
+            <line class="err real" x1="55"  y1="240" x2="65"  y2="240"/>
+            <line class="err real" x1="55"  y1="214.3" x2="65"  y2="214.3"/>
+            <!-- real 50  : 43.5%  CI [25.6, 63.2] -->
+            <line class="err real" x1="210" y1="193.9" x2="210" y2="126.2"/>
+            <line class="err real" x1="205" y1="193.9" x2="215" y2="193.9"/>
+            <line class="err real" x1="205" y1="126.2" x2="215" y2="126.2"/>
+            <!-- real 100 : 91.3%  CI [73.2, 97.6] -->
+            <line class="err real" x1="360" y1="108.2" x2="360" y2="64.3"/>
+            <line class="err real" x1="355" y1="108.2" x2="365" y2="108.2"/>
+            <line class="err real" x1="355" y1="64.3" x2="365" y2="64.3"/>
+
+            <!-- Sim+DR CI error bars (gold) at (50, 100, 200) -->
+            <!-- sim 50  : 60.9%  CI [40.8, 77.8] -->
+            <line class="err sim" x1="210" y1="166.6" x2="210" y2="99.9"/>
+            <line class="err sim" x1="205" y1="166.6" x2="215" y2="166.6"/>
+            <line class="err sim" x1="205" y1="99.9" x2="215" y2="99.9"/>
+            <!-- sim 100 : 87.0%  CI [67.9, 95.4] -->
+            <line class="err sim" x1="360" y1="117.8" x2="360" y2="68.3"/>
+            <line class="err sim" x1="355" y1="117.8" x2="365" y2="117.8"/>
+            <line class="err sim" x1="355" y1="68.3" x2="365" y2="68.3"/>
+            <!-- sim 200 : 100%   CI [85.7, 100.0] -->
+            <line class="err sim" x1="510" y1="85.7" x2="510" y2="30"/>
+            <line class="err sim" x1="505" y1="85.7" x2="515" y2="85.7"/>
+            <line class="err sim" x1="505" y1="30"  x2="515" y2="30"/>
+
+            <!-- Lines connecting points: real curve (25,50,100) and sim curve (50,100,200) -->
+            <polyline class="line-real" points="60,240 210,161.7 360,75.7"/>
+            <polyline class="line-sim"  points="210,130.4 360,83.4 510,30"/>
+
+            <!-- Data points -->
+            <circle class="dot-real" cx="60"  cy="240"  r="4.5"/>
+            <circle class="dot-real" cx="210" cy="161.7" r="4.5"/>
+            <circle class="dot-real" cx="360" cy="75.7" r="4.5"/>
+            <circle class="dot-sim"  cx="210" cy="130.4" r="5"/>
+            <circle class="dot-sim"  cx="360" cy="83.4" r="5"/>
+            <circle class="dot-sim"  cx="510" cy="30"  r="5"/>
+
+            <!-- Annotations at terminal points -->
+            <text class="ann" fill="#c97a55" x="358" y="58" text-anchor="end">91.3%</text>
+            <text class="ann" fill="#e8c547" x="503" y="22" text-anchor="end" font-weight="600">100%</text>
+
+            <!-- Compact legend -->
+            <g transform="translate(80, 18)">
+              <circle class="dot-real" cx="6" cy="0" r="4"/>
+              <text class="ann" fill="#c97a55" x="18" y="3.5">Real</text>
+              <circle class="dot-sim" cx="76" cy="0" r="4.5"/>
+              <text class="ann" fill="#e8c547" x="88" y="3.5">Sim + DR</text>
+            </g>
+          </svg>
+      </div>
+
+    </div>
+
+    <!-- (B) Distribution shift · concise text left, bar chart right -->
+    <div class="grid md:grid-cols-12 gap-8 items-center">
+
+      <div class="md:col-span-3">
+        <div class="text-mute font-mono text-[11px] tracking-wider mb-2">(B) DISTRIBUTION SHIFT</div>
+        <h3 class="font-display text-[26px] md:text-[30px] leading-[1.15] mb-4">
+          Real-data <span class="text-accent">collapses</span> under visual shifts. SimWeaver doesn&rsquo;t.
+        </h3>
+        <div class="flex items-baseline gap-3">
+          <div class="big-num text-[48px] md:text-[58px] text-accent leading-none">+30&ndash;91</div>
+          <div class="text-mute text-[13px] leading-tight">pp gain<br/>texture / lighting / rotation</div>
         </div>
       </div>
 
-      <div class="md:col-span-4 space-y-4">
-        <div class="card p-6">
-          <div class="big-num text-[42px] text-accent">+30 to +91</div>
-          <div class="text-mute text-[13px] mt-1">percentage-point gain under shift</div>
-          <p class="text-paper/75 text-[14px] mt-3 leading-relaxed">
-            Real-data training overfits to the visual conditions of the demonstration distribution. Sim training with deformable-aware DR generalizes.
-          </p>
+      <div class="md:col-span-9 card p-6 overflow-hidden">
+
+        <div class="flex items-end gap-6 md:gap-10 justify-around" style="height:380px;">
+          <div class="flex flex-col items-center flex-1">
+            <div class="text-[14px] text-mute font-mono mb-4 tracking-wider">TEXTURE</div>
+            <div class="flex items-end gap-4 h-[300px]">
+              <div class="flex flex-col items-center justify-end h-full">
+                <div class="text-[15px] text-mute mb-2 stat-num">13.0%</div>
+                <div style="width:42px; height:13%; background:#3a3934;"></div>
+              </div>
+              <div class="flex flex-col items-center justify-end h-full">
+                <div class="text-[15px] text-accent mb-2 stat-num">100%</div>
+                <div style="width:42px; height:100%; background:var(--accent);"></div>
+              </div>
+            </div>
+          </div>
+          <div class="flex flex-col items-center flex-1">
+            <div class="text-[14px] text-mute font-mono mb-4 tracking-wider">LIGHTING</div>
+            <div class="flex items-end gap-4 h-[300px]">
+              <div class="flex flex-col items-center justify-end h-full">
+                <div class="text-[15px] text-mute mb-2 stat-num">69.6%</div>
+                <div style="width:42px; height:69.6%; background:#3a3934;"></div>
+              </div>
+              <div class="flex flex-col items-center justify-end h-full">
+                <div class="text-[15px] text-accent mb-2 stat-num">100%</div>
+                <div style="width:42px; height:100%; background:var(--accent);"></div>
+              </div>
+            </div>
+          </div>
+          <div class="flex flex-col items-center flex-1">
+            <div class="text-[14px] text-mute font-mono mb-4 tracking-wider">ROTATION</div>
+            <div class="flex items-end gap-4 h-[300px]">
+              <div class="flex flex-col items-center justify-end h-full">
+                <div class="text-[15px] text-mute mb-2 stat-num">8.7%</div>
+                <div style="width:42px; height:8.7%; background:#3a3934;"></div>
+              </div>
+              <div class="flex flex-col items-center justify-end h-full">
+                <div class="text-[15px] text-accent mb-2 stat-num">100%</div>
+                <div style="width:42px; height:100%; background:var(--accent);"></div>
+              </div>
+            </div>
+          </div>
         </div>
-        <div class="card p-6">
-          <div class="big-num text-[24px]">Sample-efficient too</div>
-          <p class="text-paper/75 text-[14px] mt-3 leading-relaxed">
-            At small data scales, the sim-trained policy already outperforms real-data training in-distribution &mdash; reaching 100% at n=200.
-          </p>
+
+        <div class="flex items-center justify-center gap-8 mt-8 text-[13px] font-mono tracking-wider">
+          <div class="flex items-center gap-2"><span style="width:16px;height:12px;background:#3a3934;display:inline-block;"></span><span class="text-mute">REAL</span></div>
+          <div class="flex items-center gap-2"><span style="width:16px;height:12px;background:var(--accent);display:inline-block;"></span><span class="text-accent">SIMWEAVER</span></div>
         </div>
       </div>
+    </div>
+
+    <!-- OOD side-by-side: sim-trained continuous successes vs real-data fail under texture shift -->
+    <div class="mt-12">
+      <div class="text-mute font-mono text-[11px] tracking-wider mb-3">SIDE-BY-SIDE &middot; SAME TASK, SAME TEXTURE OOD CONDITION &middot; 10&times; SPEED</div>
+      <div class="grid md:grid-cols-2 gap-4">
+        <div class="pair-cell real" style="aspect-ratio: 1/1;">
+          <video src="video/real-video/continous_sucess_real_combined.mp4" autoplay muted loop playsinline preload="metadata"></video>
+          <div class="absolute top-3 left-3 text-[13px] md:text-[14px] font-display font-semibold tracking-tight text-ink bg-accent px-3 py-1.5 rounded">SimWeaver &middot; texture OOD &rarr; normal &middot; consistent success</div>
+        </div>
+        <div class="pair-cell real" style="aspect-ratio: 1/1;">
+          <video src="video/real-video/real-failed-in-ood-texture.mp4" autoplay muted loop playsinline preload="metadata"></video>
+          <div class="absolute top-3 left-3 text-[13px] md:text-[14px] font-display font-semibold tracking-tight text-paper bg-black/70 px-3 py-1.5 rounded">Real-data baseline &middot; texture OOD &rarr; fails</div>
+        </div>
+      </div>
+      <p class="text-mute text-[12px] mt-3 leading-relaxed max-w-3xl">
+        Left: SimWeaver policy (200 sim demos + domain randomization) running consecutive silk-grasp attempts on the real robot under the texture OOD condition &mdash; <span class="text-accent">100% success</span>. Right: real-data-trained baseline (100 teleop demos) under the same shift &mdash; <span class="text-paper">13.0% success</span>.
+      </p>
     </div>
   </div>
 </section>
@@ -889,22 +1005,47 @@
 <section class="py-24 hairline">
   <div class="max-w-[1280px] mx-auto px-6">
     <div class="grid md:grid-cols-12 gap-10 items-center">
-      <div class="md:col-span-5">
+      <div class="md:col-span-4">
         <div class="tag mb-4"><span class="dot"></span>Why RGB</div>
-        <h2 class="font-display text-[34px] md:text-[40px] leading-[1.1] tracking-tight">
-          DP3 point-cloud baseline fails on all five real tasks.
+        <h2 class="font-display text-[28px] md:text-[34px] leading-[1.15] tracking-tight mb-5">
+          Point-cloud baselines collapse on dark, absorbing surfaces.
         </h2>
-        <p class="text-mute mt-5 text-[15px] leading-relaxed">
-          A DP3 baseline trained on the same 200 demonstrations fails to deploy: consumer RGBD sensors drop coverage on matte-black grippers, dark silk, and reflective plastic-bag surfaces. SimWeaver&rsquo;s RGB formulation succeeds where geometric pipelines silently lose data.
+        <p class="text-mute text-[14.5px] leading-relaxed mb-6">
+          Black grippers and far-field dark surfaces absorb the projected pattern. Both D435i (active stereo) and Photoneo (industrial structured-light) drop large regions of the scan. Geometry-only policies have nothing to act on.
         </p>
+        <div class="card p-5">
+          <div class="flex items-baseline gap-3">
+            <div class="big-num text-[52px] md:text-[64px] text-accent leading-none">0 / 5</div>
+            <div class="text-paper/85 text-[15px] font-display font-semibold leading-tight">DP3 fails<br/>all real tasks</div>
+          </div>
+          <div class="text-mute text-[12.5px] mt-3 leading-relaxed">Point-cloud baseline trained on the same 200 sim demos &middot; zero deployed successfully on real hardware.</div>
+        </div>
       </div>
-      <div class="md:col-span-7 grid grid-cols-2 gap-5">
-        <div class="card p-3 aspect-square flex items-center justify-center text-mute text-[12px] font-mono tracking-wider text-center">
-          PCD scan failure<br/>place <span class="text-paper">pcd_scan_failure.jpeg</span><br/>in website/
+
+      <div class="md:col-span-8">
+        <div class="grid grid-cols-2 gap-4">
+          <div class="card p-3 overflow-hidden" style="background:#f5f1ea;">
+            <div class="relative">
+              <img src="figure/pcd_failue/d435i_pcd.png" alt="RealSense D435i point cloud failure on black gripper" class="w-full h-auto block" />
+              <img src="figure/pcd_failue/d435i_rgb.png" alt="D435i RGB reference" class="absolute top-2 left-2 w-[30%] h-auto rounded-sm" style="border:1px solid rgba(10,10,10,0.35); box-shadow:0 2px 8px rgba(0,0,0,0.35);" />
+              <div class="absolute top-2 right-2 text-[9px] font-mono tracking-wider uppercase text-ink bg-paper/85 px-1.5 py-0.5 rounded">PCD</div>
+              <div class="absolute top-[4%] left-[31%] text-[9px] font-mono tracking-wider uppercase text-ink bg-paper/85 px-1.5 py-0.5 rounded">RGB</div>
+            </div>
+            <div class="text-ink/70 text-[11px] mt-2 px-2 font-mono tracking-wider uppercase">D435i &middot; consumer active-stereo</div>
+          </div>
+          <div class="card p-3 overflow-hidden" style="background:#f5f1ea;">
+            <div class="relative">
+              <img src="figure/pcd_failue/photoneo_pcd.png" alt="Photoneo industrial point cloud failure on dark surfaces" class="w-full h-auto block" />
+              <img src="figure/pcd_failue/photoneo_rgb.png" alt="Photoneo RGB reference" class="absolute top-2 left-2 w-[30%] h-auto rounded-sm" style="border:1px solid rgba(10,10,10,0.35); box-shadow:0 2px 8px rgba(0,0,0,0.35);" />
+              <div class="absolute top-2 right-2 text-[9px] font-mono tracking-wider uppercase text-ink bg-paper/85 px-1.5 py-0.5 rounded">PCD</div>
+              <div class="absolute top-[4%] left-[31%] text-[9px] font-mono tracking-wider uppercase text-ink bg-paper/85 px-1.5 py-0.5 rounded">RGB</div>
+            </div>
+            <div class="text-ink/70 text-[11px] mt-2 px-2 font-mono tracking-wider uppercase">Photoneo &middot; industrial structured-light</div>
+          </div>
         </div>
-        <div class="card p-0 overflow-hidden aspect-square">
-          <video src="video/real-video/continous_sucess_grasp_silk_dr.mp4" autoplay muted loop playsinline preload="metadata" class="w-full h-full object-cover"></video>
-        </div>
+        <p class="text-mute text-[12.5px] mt-4 leading-relaxed">
+          Top-left inset shows the RGB view of the same scene; the main image shows what the depth sensor actually captured. Black gripper bodies and far dark objects vanish in both consumer and industrial scanners &mdash; silk reflects diffusely but the gripper and table edges drop. Geometric policies act on these holes.
+        </p>
       </div>
     </div>
   </div>
