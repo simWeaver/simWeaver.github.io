@@ -5,3 +5,7 @@ Thumbs.db
 *~
 .idea/
 .vscode/
+
+# 未使用的高码率原始素材，超过 GitHub 100MB 限制，页面只用 web/ 下的压缩版
+video/sim_env/style3d_hq_front.mp4
+video/sim_env/style3d_hq_side.mp4
