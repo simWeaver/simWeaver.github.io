@@ -57,3 +57,6 @@ video/sim_env/web/s3d_hq_side_1080p_6x.mp4
 video/sim_env/web/s3d_hq_side_4k_6x_crf24.mp4
 video/sim_env/web/s3d_hq_side_poster.jpg
 video/sim_env/web/vbd_full_6x_crf22.mp4
+
+# 本地草稿/清单,不进 git
+_notes/
