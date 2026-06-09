@@ -1,3 +1,4 @@
+# OS / editor cruft
 .DS_Store
 Thumbs.db
 *.swp
@@ -6,6 +7,53 @@ Thumbs.db
 .idea/
 .vscode/
 
-# 未使用的高码率原始素材，超过 GitHub 100MB 限制，页面只用 web/ 下的压缩版
+# Working notes / experiment scratch (kept on disk, out of git)
+_critic_*.md
+_sim_env_layout*.md
+
+# 未使用的高码率原始素材（超过 GitHub 100MB 限制，页面只用 web/ 下的压缩版）
 video/sim_env/style3d_hq_front.mp4
 video/sim_env/style3d_hq_side.mp4
+
+# --- repo cleanup: unused media, kept on disk but out of git ---
+video/cloth_init_video/
+video/dr_train_episodes/
+video/simulator/
+assets/assets_2x5.png
+assets/bag_canvas.png
+assets/bag_knit.png
+assets/bag_leather.png
+assets/bag_paper.png
+assets/bag_plastic.png
+assets/cloth_assets_5cloth.png
+video/_mosaic_manifest.json
+video/bag_canvas.mp4
+video/bag_knit.mp4
+video/dr_mosaic_3x3.mp4
+video/dr_mosaic_5x5.mp4
+video/dr_mosaic_6x6.mp4
+video/init_mosaic_3x3.mp4
+video/init_mosaic_5x5.mp4
+video/init_mosaic_6x6.mp4
+video/real-video/continous-success-unfold_tshirt.mp4
+video/real-video/continous_ood_texture.mp4
+video/real-video/continous_sucess_grasp_silk_dr.mp4
+video/sim_env/isaac_closeup_1.mp4
+video/sim_env/isaac_closeup_2.mp4
+video/sim_env/isaac_full.mp4
+video/sim_env/style3d_original_closeup_1.mp4
+video/sim_env/style3d_original_closeup_2.mp4
+video/sim_env/style3d_original_full.mp4
+video/sim_env/vbd_closeup_1.mp4
+video/sim_env/vbd_closeup_2.mp4
+video/sim_env/vbd_full.mp4
+video/sim_env/web/isaac_full_2x_crf22.mp4
+video/sim_env/web/s3d_closeL.mp4
+video/sim_env/web/s3d_closeR.mp4
+video/sim_env/web/s3d_full_6x.mp4
+video/sim_env/web/s3d_full_6x_crf22.mp4
+video/sim_env/web/s3d_hq_front_1080p_6x.mp4
+video/sim_env/web/s3d_hq_side_1080p_6x.mp4
+video/sim_env/web/s3d_hq_side_4k_6x_crf24.mp4
+video/sim_env/web/s3d_hq_side_poster.jpg
+video/sim_env/web/vbd_full_6x_crf22.mp4
