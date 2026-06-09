@@ -5,6 +5,20 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>SimWeaver · Zero-Shot RGB Sim-to-Real for Deformable Manipulation</title>
 
+<meta name="description" content="Train deformable-object manipulation entirely in simulation — 200 sim demos per task, no teleoperation — then deploy zero-shot on real RGB: 91.30% real-world success across 5 deformable tasks." />
+<link rel="icon" type="image/png" href="assets/favicon.png" />
+
+<!-- Open Graph / social share card -->
+<meta property="og:type" content="website" />
+<meta property="og:title" content="SimWeaver: Zero-Shot RGB Sim-to-Real for Deformable Manipulation" />
+<meta property="og:description" content="200 sim demos per task, no teleoperation, 91.30% real-world success across 5 deformable tasks — deployed zero-shot on real RGB." />
+<meta property="og:image" content="https://simweaver.github.io/assets/og-image.jpg" />
+<meta property="og:url" content="https://simweaver.github.io/" />
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content="SimWeaver: Zero-Shot RGB Sim-to-Real for Deformable Manipulation" />
+<meta name="twitter:description" content="200 sim demos per task, no teleoperation, 91.30% real-world success across 5 deformable tasks — deployed zero-shot on real RGB." />
+<meta name="twitter:image" content="https://simweaver.github.io/assets/og-image.jpg" />
+
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -734,7 +748,7 @@
       <div>
         <h4 class="font-display text-[20px] text-paper mb-2">Generative Extension</h4>
         <p class="text-paper/80 leading-relaxed text-[15px] max-w-3xl mb-5">
-          A single image becomes a simulation-ready 3D mesh &mdash; not just geometry, but grounded, interpretable physical parameters.
+          A single image becomes a simulation-ready 3D mesh &mdash; not just geometry, but the physical parameters that make it simulate.
         </p>
 
         <div class="grid md:grid-cols-2 gap-x-10 gap-y-6">
@@ -821,7 +835,7 @@
       <div class="text-mute font-mono text-[12px] tracking-wider mb-2">COMPONENT · SIM</div>
       <h3 class="font-display text-[28px] mb-4">SimWeaver-Sim</h3>
       <p class="text-paper/80 leading-relaxed text-[15px] mb-6 max-w-3xl">
-        Robust collision handling, penetration prevention, and trajectory-replay determinism &mdash; closing the residual sim-to-real gap on thin fabrics.
+        Robust collision handling, penetration prevention, and trajectory-replay determinism &mdash; fixing the contact instability and non-deterministic replay that break thin fabrics in standard simulators.
       </p>
 
       <div class="grid grid-cols-2 gap-4 mb-6">
@@ -897,7 +911,7 @@
       <div class="text-mute font-mono text-[12px] tracking-wider mb-2">COMPONENT · SYN</div>
       <h3 class="font-display text-[28px] mb-4">SimWeaver-Syn <span class="text-mute text-[18px] align-middle">/ TopoSynth</span></h3>
       <p class="text-paper/80 leading-relaxed text-[15px] mb-8 max-w-3xl">
-        Topology-aware trajectory synthesis. Generates deterministic demonstrations from a <span class="text-accent">single seed</span>.
+        Topology-aware trajectory synthesis &mdash; deterministic demonstrations from a <span class="text-accent">single seed</span>.
       </p>
 
       <!-- Three "NO X" cards -->
@@ -965,7 +979,7 @@
       <div class="text-mute font-mono text-[12px] tracking-wider mb-2">COMPONENT · REAL</div>
       <h3 class="font-display text-[28px] mb-2">SimWeaver-Real</h3>
       <p class="text-paper/80 leading-relaxed text-[15px] max-w-3xl mb-8">
-        A sim-to-real protocol. Closes the deformable-specific gaps that generic domain randomization misses.
+        A sim-to-real protocol that closes the deformable-specific gaps generic domain randomization leaves open.
       </p>
 
       <div class="grid md:grid-cols-3 gap-5">
