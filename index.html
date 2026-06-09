@@ -6,18 +6,18 @@
 <title>SimWeaver · Zero-Shot RGB Sim-to-Real for Deformable Manipulation</title>
 
 <meta name="description" content="Train deformable-object manipulation entirely in simulation — 200 sim demos per task, no teleoperation — then deploy zero-shot on real RGB: 91.30% real-world success across 5 deformable tasks." />
-<link rel="icon" type="image/png" href="assets/favicon.png" />
+<link rel="icon" type="image/png" href="assets/social/favicon.png" />
 
 <!-- Open Graph / social share card -->
 <meta property="og:type" content="website" />
 <meta property="og:title" content="SimWeaver: Zero-Shot RGB Sim-to-Real for Deformable Manipulation" />
 <meta property="og:description" content="200 sim demos per task, no teleoperation, 91.30% real-world success across 5 deformable tasks — deployed zero-shot on real RGB." />
-<meta property="og:image" content="https://simweaver.github.io/assets/og-image.jpg" />
+<meta property="og:image" content="https://simweaver.github.io/assets/social/og-image.jpg" />
 <meta property="og:url" content="https://simweaver.github.io/" />
 <meta name="twitter:card" content="summary_large_image" />
 <meta name="twitter:title" content="SimWeaver: Zero-Shot RGB Sim-to-Real for Deformable Manipulation" />
 <meta name="twitter:description" content="200 sim demos per task, no teleoperation, 91.30% real-world success across 5 deformable tasks — deployed zero-shot on real RGB." />
-<meta name="twitter:image" content="https://simweaver.github.io/assets/og-image.jpg" />
+<meta name="twitter:image" content="https://simweaver.github.io/assets/social/og-image.jpg" />
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -413,16 +413,16 @@
       </div>
       <div class="grid grid-cols-2 md:grid-cols-4 gap-3" id="real-strip">
         <div class="real-cell rounded-md aspect-video">
-          <video src="video/real-video/cropped/flatten_silk.mp4" autoplay muted loop playsinline preload="metadata"></video>
+          <video src="video/real/cropped/flatten_silk.mp4" autoplay muted loop playsinline preload="metadata"></video>
         </div>
         <div class="real-cell rounded-md aspect-video">
-          <video src="video/real-video/cropped/flatten_tshirt.mp4" autoplay muted loop playsinline preload="metadata"></video>
+          <video src="video/real/cropped/flatten_tshirt.mp4" autoplay muted loop playsinline preload="metadata"></video>
         </div>
         <div class="real-cell rounded-md aspect-video">
-          <video src="video/real-video/cropped/pack_snickers.mp4" autoplay muted loop playsinline preload="metadata"></video>
+          <video src="video/real/cropped/pack_snickers.mp4" autoplay muted loop playsinline preload="metadata"></video>
         </div>
         <div class="real-cell rounded-md aspect-video">
-          <video src="video/real-video/cropped/fold_tshirt.mp4" autoplay muted loop playsinline preload="metadata"></video>
+          <video src="video/real/cropped/fold_tshirt.mp4" autoplay muted loop playsinline preload="metadata"></video>
         </div>
       </div>
     </div>
@@ -524,19 +524,19 @@
         </div>
         <div class="md:col-span-9 grid grid-cols-2 gap-4">
           <div class="pair-cell">
-            <video src="video/sim-train-video/padded/grasp_silk_dr/static_cam.mp4" autoplay muted loop playsinline preload="metadata"></video>
+            <video src="video/sim_train/padded/grasp_silk_dr/static_cam.mp4" autoplay muted loop playsinline preload="metadata"></video>
             <div class="pip-wrist left">
-              <video src="video/sim-train-video/padded/grasp_silk_dr/left_hand_cam.mp4" autoplay muted loop playsinline preload="metadata"></video>
+              <video src="video/sim_train/padded/grasp_silk_dr/left_hand_cam.mp4" autoplay muted loop playsinline preload="metadata"></video>
               <div class="pip-tag">L wrist</div>
             </div>
             <div class="pip-wrist right">
-              <video src="video/sim-train-video/padded/grasp_silk_dr/right_hand_cam.mp4" autoplay muted loop playsinline preload="metadata"></video>
+              <video src="video/sim_train/padded/grasp_silk_dr/right_hand_cam.mp4" autoplay muted loop playsinline preload="metadata"></video>
               <div class="pip-tag">R wrist</div>
             </div>
             <div class="absolute top-2 left-2 text-[10px] font-mono tracking-wider text-paper/80 bg-black/55 px-2 py-1 rounded z-[3]">SIM · POLICY INPUT</div>
           </div>
           <div class="pair-cell real">
-            <video src="video/real-video/static_cam/lift_silk.mp4" autoplay muted loop playsinline preload="metadata"></video>
+            <video src="video/real/static_cam/lift_silk.mp4" autoplay muted loop playsinline preload="metadata"></video>
             <div class="absolute top-2 left-2 text-[10px] font-mono tracking-wider text-ink bg-accent px-2 py-1 rounded">REAL · ZERO-SHOT</div>
           </div>
         </div>
@@ -555,19 +555,19 @@
         </div>
         <div class="md:col-span-9 grid grid-cols-2 gap-4">
           <div class="pair-cell">
-            <video src="video/sim-train-video/padded/flatten_silk/static_cam.mp4" autoplay muted loop playsinline preload="metadata"></video>
+            <video src="video/sim_train/padded/flatten_silk/static_cam.mp4" autoplay muted loop playsinline preload="metadata"></video>
             <div class="pip-wrist left">
-              <video src="video/sim-train-video/padded/flatten_silk/left_hand_cam.mp4" autoplay muted loop playsinline preload="metadata"></video>
+              <video src="video/sim_train/padded/flatten_silk/left_hand_cam.mp4" autoplay muted loop playsinline preload="metadata"></video>
               <div class="pip-tag">L wrist</div>
             </div>
             <div class="pip-wrist right">
-              <video src="video/sim-train-video/padded/flatten_silk/right_hand_cam.mp4" autoplay muted loop playsinline preload="metadata"></video>
+              <video src="video/sim_train/padded/flatten_silk/right_hand_cam.mp4" autoplay muted loop playsinline preload="metadata"></video>
               <div class="pip-tag">R wrist</div>
             </div>
             <div class="absolute top-2 left-2 text-[10px] font-mono tracking-wider text-paper/80 bg-black/55 px-2 py-1 rounded z-[3]">SIM · POLICY INPUT</div>
           </div>
           <div class="pair-cell real">
-            <video src="video/real-video/static_cam/flatten_silk.mp4" autoplay muted loop playsinline preload="metadata"></video>
+            <video src="video/real/static_cam/flatten_silk.mp4" autoplay muted loop playsinline preload="metadata"></video>
             <div class="absolute top-2 left-2 text-[10px] font-mono tracking-wider text-ink bg-accent px-2 py-1 rounded">REAL · ZERO-SHOT</div>
           </div>
         </div>
@@ -586,19 +586,19 @@
         </div>
         <div class="md:col-span-9 grid grid-cols-2 gap-4">
           <div class="pair-cell">
-            <video src="video/sim-train-video/padded/fold_tshirt/static_cam.mp4" autoplay muted loop playsinline preload="metadata"></video>
+            <video src="video/sim_train/padded/fold_tshirt/static_cam.mp4" autoplay muted loop playsinline preload="metadata"></video>
             <div class="pip-wrist left">
-              <video src="video/sim-train-video/padded/fold_tshirt/left_hand_cam.mp4" autoplay muted loop playsinline preload="metadata"></video>
+              <video src="video/sim_train/padded/fold_tshirt/left_hand_cam.mp4" autoplay muted loop playsinline preload="metadata"></video>
               <div class="pip-tag">L wrist</div>
             </div>
             <div class="pip-wrist right">
-              <video src="video/sim-train-video/padded/fold_tshirt/right_hand_cam.mp4" autoplay muted loop playsinline preload="metadata"></video>
+              <video src="video/sim_train/padded/fold_tshirt/right_hand_cam.mp4" autoplay muted loop playsinline preload="metadata"></video>
               <div class="pip-tag">R wrist</div>
             </div>
             <div class="absolute top-2 left-2 text-[10px] font-mono tracking-wider text-paper/80 bg-black/55 px-2 py-1 rounded z-[3]">SIM · POLICY INPUT</div>
           </div>
           <div class="pair-cell real">
-            <video src="video/real-video/static_cam/fold_tshirt.mp4" autoplay muted loop playsinline preload="metadata"></video>
+            <video src="video/real/static_cam/fold_tshirt.mp4" autoplay muted loop playsinline preload="metadata"></video>
             <div class="absolute top-2 left-2 text-[10px] font-mono tracking-wider text-ink bg-accent px-2 py-1 rounded">REAL · ZERO-SHOT</div>
           </div>
         </div>
@@ -617,19 +617,19 @@
         </div>
         <div class="md:col-span-9 grid grid-cols-2 gap-4">
           <div class="pair-cell">
-            <video src="video/sim-train-video/padded/pack_snicker/static_cam.mp4" autoplay muted loop playsinline preload="metadata"></video>
+            <video src="video/sim_train/padded/pack_snicker/static_cam.mp4" autoplay muted loop playsinline preload="metadata"></video>
             <div class="pip-wrist left">
-              <video src="video/sim-train-video/padded/pack_snicker/left_hand_cam.mp4" autoplay muted loop playsinline preload="metadata"></video>
+              <video src="video/sim_train/padded/pack_snicker/left_hand_cam.mp4" autoplay muted loop playsinline preload="metadata"></video>
               <div class="pip-tag">L wrist</div>
             </div>
             <div class="pip-wrist right">
-              <video src="video/sim-train-video/padded/pack_snicker/right_hand_cam.mp4" autoplay muted loop playsinline preload="metadata"></video>
+              <video src="video/sim_train/padded/pack_snicker/right_hand_cam.mp4" autoplay muted loop playsinline preload="metadata"></video>
               <div class="pip-tag">R wrist</div>
             </div>
             <div class="absolute top-2 left-2 text-[10px] font-mono tracking-wider text-paper/80 bg-black/55 px-2 py-1 rounded z-[3]">SIM · POLICY INPUT</div>
           </div>
           <div class="pair-cell real">
-            <video src="video/real-video/cropped/pack_snickers.mp4" autoplay muted loop playsinline preload="metadata"></video>
+            <video src="video/real/cropped/pack_snickers.mp4" autoplay muted loop playsinline preload="metadata"></video>
             <div class="absolute top-2 left-2 text-[10px] font-mono tracking-wider text-ink bg-accent px-2 py-1 rounded">REAL · ZERO-SHOT</div>
           </div>
         </div>
@@ -648,19 +648,19 @@
         </div>
         <div class="md:col-span-9 grid grid-cols-2 gap-4">
           <div class="pair-cell">
-            <video src="video/sim-train-video/padded/flatten_tshirt/static_cam.mp4" autoplay muted loop playsinline preload="metadata"></video>
+            <video src="video/sim_train/padded/flatten_tshirt/static_cam.mp4" autoplay muted loop playsinline preload="metadata"></video>
             <div class="pip-wrist left">
-              <video src="video/sim-train-video/padded/flatten_tshirt/left_hand_cam.mp4" autoplay muted loop playsinline preload="metadata"></video>
+              <video src="video/sim_train/padded/flatten_tshirt/left_hand_cam.mp4" autoplay muted loop playsinline preload="metadata"></video>
               <div class="pip-tag">L wrist</div>
             </div>
             <div class="pip-wrist right">
-              <video src="video/sim-train-video/padded/flatten_tshirt/right_hand_cam.mp4" autoplay muted loop playsinline preload="metadata"></video>
+              <video src="video/sim_train/padded/flatten_tshirt/right_hand_cam.mp4" autoplay muted loop playsinline preload="metadata"></video>
               <div class="pip-tag">R wrist</div>
             </div>
             <div class="absolute top-2 left-2 text-[10px] font-mono tracking-wider text-paper/80 bg-black/55 px-2 py-1 rounded z-[3]">SIM · POLICY INPUT</div>
           </div>
           <div class="pair-cell real">
-            <video src="video/real-video/static_cam/flatten_tshirt.mp4" autoplay muted loop playsinline preload="metadata"></video>
+            <video src="video/real/static_cam/flatten_tshirt.mp4" autoplay muted loop playsinline preload="metadata"></video>
             <div class="absolute top-2 left-2 text-[10px] font-mono tracking-wider text-ink bg-accent px-2 py-1 rounded">REAL · ZERO-SHOT</div>
           </div>
         </div>
@@ -672,7 +672,7 @@
     <div class="mt-16">
       <div class="tag mb-3"><span class="dot"></span>Qualitative rollout &middot; five tasks</div>
       <div class="card p-3 md:p-4 overflow-hidden">
-        <img src="five_task_rollout-1.png" alt="Five-task sim-to-real rollout keyframes" class="w-full h-auto rounded-sm" />
+        <img src="figure/five_task_rollout-1.png" alt="Five-task sim-to-real rollout keyframes" class="w-full h-auto rounded-sm" />
       </div>
       <p class="text-mute text-[12px] mt-2 font-mono tracking-wider text-center">SAME POLICY CHECKPOINT &middot; SIM ROLLOUT KEYFRAMES VS. ZERO-SHOT REAL DEPLOYMENT</p>
     </div>
@@ -688,7 +688,7 @@
       Four components, one zero-shot pipeline.
     </h2>
     <div class="card p-4 md:p-6 overflow-hidden">
-      <img src="overview-1.png" alt="SimWeaver system architecture: Asset, Sim, Trajectory Generation, Domain Randomization, VLA, Real Deployment" class="w-full h-auto rounded-sm" />
+      <img src="figure/overview-1.png" alt="SimWeaver system architecture: Asset, Sim, Trajectory Generation, Domain Randomization, VLA, Real Deployment" class="w-full h-auto rounded-sm" />
     </div>
     <p class="text-mute text-[13px] mt-4 max-w-3xl leading-relaxed">
       Assets feed the simulator; SimWeaver-Syn produces 200 deterministic demonstrations per task from a single seed; domain randomization renders varied scenes; the demonstrations train a $\pi_{0.5}$ VLA policy deployed zero-shot on real hardware.
@@ -724,21 +724,21 @@
           <div class="flex-1">
             <div class="text-mute font-mono text-[10px] tracking-[0.18em] uppercase mb-2">Garments</div>
             <div class="grid grid-cols-5 gap-2">
-              <div class="aspect-square rounded-sm overflow-hidden flex items-center justify-center" style="background:#f5f1ea;"><img src="assets/cloth_1_coat.png" alt="Garment" class="w-full h-full object-contain p-1.5" /></div>
-              <div class="aspect-square rounded-sm overflow-hidden flex items-center justify-center" style="background:#f5f1ea;"><img src="assets/cloth_2_wrap.png" alt="Garment" class="w-full h-full object-contain p-1.5" /></div>
-              <div class="aspect-square rounded-sm overflow-hidden flex items-center justify-center" style="background:#f5f1ea;"><img src="assets/cloth_3_blazer.png" alt="Garment" class="w-full h-full object-contain p-1.5" /></div>
-              <div class="aspect-square rounded-sm overflow-hidden flex items-center justify-center" style="background:#f5f1ea;"><img src="assets/cloth_4_jacket.png" alt="Garment" class="w-full h-full object-contain p-1.5" /></div>
-              <div class="aspect-square rounded-sm overflow-hidden flex items-center justify-center" style="background:#f5f1ea;"><img src="assets/cloth_5_print.png" alt="Garment" class="w-full h-full object-contain p-1.5" /></div>
+              <div class="aspect-square rounded-sm overflow-hidden flex items-center justify-center" style="background:#f5f1ea;"><img src="assets/thumbnails/cloth_1_coat.png" alt="Garment" class="w-full h-full object-contain p-1.5" /></div>
+              <div class="aspect-square rounded-sm overflow-hidden flex items-center justify-center" style="background:#f5f1ea;"><img src="assets/thumbnails/cloth_2_wrap.png" alt="Garment" class="w-full h-full object-contain p-1.5" /></div>
+              <div class="aspect-square rounded-sm overflow-hidden flex items-center justify-center" style="background:#f5f1ea;"><img src="assets/thumbnails/cloth_3_blazer.png" alt="Garment" class="w-full h-full object-contain p-1.5" /></div>
+              <div class="aspect-square rounded-sm overflow-hidden flex items-center justify-center" style="background:#f5f1ea;"><img src="assets/thumbnails/cloth_4_jacket.png" alt="Garment" class="w-full h-full object-contain p-1.5" /></div>
+              <div class="aspect-square rounded-sm overflow-hidden flex items-center justify-center" style="background:#f5f1ea;"><img src="assets/thumbnails/cloth_5_print.png" alt="Garment" class="w-full h-full object-contain p-1.5" /></div>
             </div>
           </div>
           <div class="flex-1">
             <div class="text-mute font-mono text-[10px] tracking-[0.18em] uppercase mb-2">Bags</div>
             <div class="grid grid-cols-5 gap-2">
-              <div class="aspect-square rounded-sm overflow-hidden flex items-center justify-center" style="background:#f5f1ea;"><img src="assets/bag_plastic_cut.png" alt="Plastic bag" class="w-full h-full object-contain p-1.5" /></div>
-              <div class="aspect-square rounded-sm overflow-hidden flex items-center justify-center" style="background:#f5f1ea;"><img src="assets/paper_bag_cut.png" alt="Paper bag" class="w-full h-full object-contain p-1.5" /></div>
-              <div class="aspect-square rounded-sm overflow-hidden flex items-center justify-center" style="background:#f5f1ea;"><img src="assets/bag_canvas_cut.png" alt="Canvas bag" class="w-full h-full object-contain p-1.5" /></div>
-              <div class="aspect-square rounded-sm overflow-hidden flex items-center justify-center" style="background:#f5f1ea;"><img src="assets/bag_knit_cut.png" alt="Knit bag" class="w-full h-full object-contain p-1.5" /></div>
-              <div class="aspect-square rounded-sm overflow-hidden flex items-center justify-center" style="background:#f5f1ea;"><img src="assets/bag_leather_cut.png" alt="Leather bag" class="w-full h-full object-contain p-1.5" /></div>
+              <div class="aspect-square rounded-sm overflow-hidden flex items-center justify-center" style="background:#f5f1ea;"><img src="assets/thumbnails/bag_plastic_cut.png" alt="Plastic bag" class="w-full h-full object-contain p-1.5" /></div>
+              <div class="aspect-square rounded-sm overflow-hidden flex items-center justify-center" style="background:#f5f1ea;"><img src="assets/thumbnails/paper_bag_cut.png" alt="Paper bag" class="w-full h-full object-contain p-1.5" /></div>
+              <div class="aspect-square rounded-sm overflow-hidden flex items-center justify-center" style="background:#f5f1ea;"><img src="assets/thumbnails/bag_canvas_cut.png" alt="Canvas bag" class="w-full h-full object-contain p-1.5" /></div>
+              <div class="aspect-square rounded-sm overflow-hidden flex items-center justify-center" style="background:#f5f1ea;"><img src="assets/thumbnails/bag_knit_cut.png" alt="Knit bag" class="w-full h-full object-contain p-1.5" /></div>
+              <div class="aspect-square rounded-sm overflow-hidden flex items-center justify-center" style="background:#f5f1ea;"><img src="assets/thumbnails/bag_leather_cut.png" alt="Leather bag" class="w-full h-full object-contain p-1.5" /></div>
             </div>
           </div>
         </div>
@@ -758,14 +758,14 @@
             <div class="grid grid-cols-[1fr_auto_1fr_auto_auto_auto_1fr] gap-2 items-center">
               <div class="flex flex-col">
                 <div class="aspect-square rounded-sm overflow-hidden border border-line bg-black">
-                  <img src="video/generative_assets/generation/input/bag_input.png" alt="Bag input photo" class="w-full h-full object-cover" />
+                  <img src="video/generative/generation/input/bag_input.png" alt="Bag input photo" class="w-full h-full object-cover" />
                 </div>
                 <div class="text-mute font-mono text-[10px] tracking-wider mt-2 text-center">Image</div>
               </div>
               <div class="text-accent text-[16px] font-mono opacity-70 leading-none">&rarr;</div>
               <div class="flex flex-col">
                 <div class="aspect-square rounded-sm overflow-hidden bg-black">
-                  <video src="video/generative_assets/generation/bag_turntable.mp4" autoplay muted loop playsinline preload="metadata" class="w-full h-full object-cover"></video>
+                  <video src="video/generative/generation/bag_turntable.mp4" autoplay muted loop playsinline preload="metadata" class="w-full h-full object-cover"></video>
                 </div>
                 <div class="text-mute font-mono text-[10px] tracking-wider mt-2 text-center">3D mesh</div>
               </div>
@@ -782,7 +782,7 @@
               <div class="text-accent text-[16px] font-mono opacity-70 leading-none">&rarr;</div>
               <div class="flex flex-col">
                 <div class="aspect-square rounded-sm overflow-hidden bg-black">
-                  <video src="video/generative_assets/bag_gen_az135.mp4" autoplay muted loop playsinline preload="metadata" class="w-full h-full object-cover"></video>
+                  <video src="video/generative/bag_gen_az135.mp4" autoplay muted loop playsinline preload="metadata" class="w-full h-full object-cover"></video>
                 </div>
                 <div class="text-mute font-mono text-[10px] tracking-wider mt-2 text-center">Sim</div>
               </div>
@@ -795,14 +795,14 @@
             <div class="grid grid-cols-[1fr_auto_1fr_auto_auto_auto_1fr] gap-2 items-center">
               <div class="flex flex-col">
                 <div class="aspect-square rounded-sm overflow-hidden border border-line bg-black">
-                  <img src="video/generative_assets/generation/input/tshirt_blue_input.jpg" alt="T-shirt input photo" class="w-full h-full object-cover" />
+                  <img src="video/generative/generation/input/tshirt_blue_input.jpg" alt="T-shirt input photo" class="w-full h-full object-cover" />
                 </div>
                 <div class="text-mute font-mono text-[10px] tracking-wider mt-2 text-center">Image</div>
               </div>
               <div class="text-accent text-[16px] font-mono opacity-70 leading-none">&rarr;</div>
               <div class="flex flex-col">
                 <div class="aspect-square rounded-sm overflow-hidden bg-black">
-                  <video src="video/generative_assets/generation/tshirt_blue_turntable.mp4" autoplay muted loop playsinline preload="metadata" class="w-full h-full object-cover"></video>
+                  <video src="video/generative/generation/tshirt_blue_turntable.mp4" autoplay muted loop playsinline preload="metadata" class="w-full h-full object-cover"></video>
                 </div>
                 <div class="text-mute font-mono text-[10px] tracking-wider mt-2 text-center">3D mesh</div>
               </div>
@@ -819,7 +819,7 @@
               <div class="text-accent text-[16px] font-mono opacity-70 leading-none">&rarr;</div>
               <div class="flex flex-col">
                 <div class="aspect-square rounded-sm overflow-hidden bg-black">
-                  <video src="video/generative_assets/tshirt_blue_gen.mp4" autoplay muted loop playsinline preload="metadata" class="w-full h-full object-cover"></video>
+                  <video src="video/generative/tshirt_blue_gen.mp4" autoplay muted loop playsinline preload="metadata" class="w-full h-full object-cover"></video>
                 </div>
                 <div class="text-mute font-mono text-[10px] tracking-wider mt-2 text-center">Sim</div>
               </div>
@@ -988,7 +988,7 @@
         <div class="card p-5 flex flex-col">
           <div class="text-mute font-mono text-[11px] tracking-wider mb-3">AXIS 01 · INITIAL STATE</div>
           <h4 class="font-display text-[20px] mb-3">Physics-driven cloth init</h4>
-          <video src="video/init_mosaic_4x4.mp4" autoplay muted loop playsinline preload="metadata" class="w-full aspect-video object-cover rounded-sm bg-black"></video>
+          <video src="video/randomization/init_mosaic_4x4.mp4" autoplay muted loop playsinline preload="metadata" class="w-full aspect-video object-cover rounded-sm bg-black"></video>
           <div class="text-mute font-mono text-[10px] tracking-wider mt-2 opacity-75">drop-and-settle &middot; pin-and-fold</div>
         </div>
 
@@ -1066,7 +1066,7 @@
         <div class="card p-5 flex flex-col">
           <div class="text-mute font-mono text-[11px] tracking-wider mb-3">AXIS 03 · SCENE RANDOMIZATION</div>
           <h4 class="font-display text-[20px] mb-3">Lighting &middot; background &middot; robot pose</h4>
-          <video src="video/dr_mosaic_4x4.mp4" autoplay muted loop playsinline preload="metadata" class="w-full aspect-video object-cover rounded-sm bg-black"></video>
+          <video src="video/randomization/dr_mosaic_4x4.mp4" autoplay muted loop playsinline preload="metadata" class="w-full aspect-video object-cover rounded-sm bg-black"></video>
         </div>
 
       </div>
@@ -1231,11 +1231,11 @@
       <div class="text-mute font-mono text-[11px] tracking-wider mb-3">SIDE-BY-SIDE &middot; SAME TASK, OOD VISUAL SHIFT &middot; 10&times; SPEED</div>
       <div class="grid md:grid-cols-2 gap-4">
         <div class="pair-cell real" style="aspect-ratio: 1/1;">
-          <video src="video/real-video/continous_sucess_real_combined.mp4" autoplay muted loop playsinline preload="metadata"></video>
+          <video src="video/real/continous_sucess_real_combined.mp4" autoplay muted loop playsinline preload="metadata"></video>
           <div class="absolute top-3 left-3 text-[13px] md:text-[14px] font-display font-semibold tracking-tight text-ink bg-accent px-3 py-1.5 rounded">SimWeaver &middot; OOD &middot; consistent success</div>
         </div>
         <div class="pair-cell real" style="aspect-ratio: 1/1;">
-          <video src="video/real-video/real-failed-in-ood-texture.mp4" autoplay muted loop playsinline preload="metadata"></video>
+          <video src="video/real/real-failed-in-ood-texture.mp4" autoplay muted loop playsinline preload="metadata"></video>
           <div class="absolute top-3 left-3 text-[13px] md:text-[14px] font-display font-semibold tracking-tight text-paper bg-black/70 px-3 py-1.5 rounded">Real-data baseline &middot; OOD &middot; fails</div>
         </div>
       </div>
@@ -1311,19 +1311,19 @@
     <!-- Main 4 cinematic in 2x2 grid (the hero rotation, full length) -->
     <div class="grid md:grid-cols-2 gap-5">
       <div class="gallery-card">
-        <video src="video/web_hero_hq/simWeaver-flatten-silk.mp4" autoplay muted loop playsinline preload="metadata"></video>
+        <video src="video/hero/simWeaver-flatten-silk.mp4" autoplay muted loop playsinline preload="metadata"></video>
         <div class="label">Silk Unfolding · Balcony</div>
       </div>
       <div class="gallery-card">
-        <video src="video/web_hero_hq/simWeaver-flatten-tshirt.mp4" autoplay muted loop playsinline preload="metadata"></video>
+        <video src="video/hero/simWeaver-flatten-tshirt.mp4" autoplay muted loop playsinline preload="metadata"></video>
         <div class="label">Garment Unfolding · Balcony</div>
       </div>
       <div class="gallery-card">
-        <video src="video/web_hero_hq/simWeaver-pack-snickers_v3.mp4" autoplay muted loop playsinline preload="metadata"></video>
+        <video src="video/hero/simWeaver-pack-snickers_v3.mp4" autoplay muted loop playsinline preload="metadata"></video>
         <div class="label">Snack into Bag · Kitchen</div>
       </div>
       <div class="gallery-card">
-        <video src="video/web_hero_hq/simWeaver-fold-tshirt2.mp4" autoplay muted loop playsinline preload="metadata"></video>
+        <video src="video/hero/simWeaver-fold-tshirt2.mp4" autoplay muted loop playsinline preload="metadata"></video>
         <div class="label">Garment Folding · Bedroom</div>
       </div>
     </div>
@@ -1333,15 +1333,15 @@
       <div class="text-mute font-mono text-[11px] tracking-wider mb-3">BAG ASSET VARIANTS &middot; PLASTIC / CANVAS / KNIT</div>
       <div class="grid grid-cols-3 gap-3">
         <div class="gallery-card aspect-[4/5]">
-          <video src="video/bag_plastic.mp4" autoplay muted loop playsinline preload="metadata"></video>
+          <video src="video/gallery/bags/bag_plastic.mp4" autoplay muted loop playsinline preload="metadata"></video>
           <div class="label">Plastic</div>
         </div>
         <div class="gallery-card aspect-[4/5]">
-          <video src="video/bag_canvas_no_logo.mp4" autoplay muted loop playsinline preload="metadata"></video>
+          <video src="video/gallery/bags/bag_canvas_no_logo.mp4" autoplay muted loop playsinline preload="metadata"></video>
           <div class="label">Canvas</div>
         </div>
         <div class="gallery-card aspect-[4/5]">
-          <video src="video/bag_knit_no_logo.mp4" autoplay muted loop playsinline preload="metadata"></video>
+          <video src="video/gallery/bags/bag_knit_no_logo.mp4" autoplay muted loop playsinline preload="metadata"></video>
           <div class="label">Knit</div>
         </div>
       </div>
@@ -1352,15 +1352,15 @@
       <div class="text-mute font-mono text-[11px] tracking-wider mb-3">GARMENT COLOR VARIANTS &middot; PINK / BLUE / YELLOW</div>
       <div class="grid grid-cols-3 gap-3">
         <div class="gallery-card aspect-[4/5]">
-          <video src="video/dr_pink_shirt.mp4" autoplay muted loop playsinline preload="metadata"></video>
+          <video src="video/gallery/garments/dr_pink_shirt.mp4" autoplay muted loop playsinline preload="metadata"></video>
           <div class="label">Pink</div>
         </div>
         <div class="gallery-card aspect-[4/5]">
-          <video src="video/dr_blue_shirt.mp4" autoplay muted loop playsinline preload="metadata"></video>
+          <video src="video/gallery/garments/dr_blue_shirt.mp4" autoplay muted loop playsinline preload="metadata"></video>
           <div class="label">Blue</div>
         </div>
         <div class="gallery-card aspect-[4/5]">
-          <video src="video/dr_yellow_shirt.mp4" autoplay muted loop playsinline preload="metadata"></video>
+          <video src="video/gallery/garments/dr_yellow_shirt.mp4" autoplay muted loop playsinline preload="metadata"></video>
           <div class="label">Yellow</div>
         </div>
       </div>
@@ -1472,10 +1472,10 @@
 <script>
 (() => {
   const clips = [
-    { src: "video/web_hero_hq/simWeaver-flatten-silk.mp4",   label: "Silk Unfolding",     scene: "Balcony · sun",        stat: "95.65%" },
-    { src: "video/web_hero_hq/simWeaver-flatten-tshirt.mp4", label: "Garment Unfolding",  scene: "Balcony · sun",        stat: "82.61%" },
-    { src: "video/web_hero_hq/simWeaver-pack-snickers_v3.mp4",  label: "Snack Packaging",    scene: "Kitchen",              stat: "86.96%" },
-    { src: "video/web_hero_hq/simWeaver-fold-tshirt2.mp4",   label: "Garment Folding",    scene: "Bedroom · oak table",  stat: "91.30%" },
+    { src: "video/hero/simWeaver-flatten-silk.mp4",   label: "Silk Unfolding",     scene: "Balcony · sun",        stat: "95.65%" },
+    { src: "video/hero/simWeaver-flatten-tshirt.mp4", label: "Garment Unfolding",  scene: "Balcony · sun",        stat: "82.61%" },
+    { src: "video/hero/simWeaver-pack-snickers_v3.mp4",  label: "Snack Packaging",    scene: "Kitchen",              stat: "86.96%" },
+    { src: "video/hero/simWeaver-fold-tshirt2.mp4",   label: "Garment Folding",    scene: "Bedroom · oak table",  stat: "91.30%" },
   ];
 
   const video   = document.getElementById('hero-video');
