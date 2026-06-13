@@ -690,9 +690,12 @@
     <div class="card p-4 md:p-6 overflow-hidden">
       <img src="figure/overview-1.png" alt="SimWeaver system architecture: Asset, Sim, Trajectory Generation, Domain Randomization, VLA, Real Deployment" class="w-full h-auto rounded-sm" />
     </div>
-    <p class="text-mute text-[13px] mt-4 max-w-3xl leading-relaxed">
-      Assets feed the simulator; SimWeaver-Syn produces 200 deterministic demonstrations per task from a single seed; domain randomization renders varied scenes; the demonstrations train a $\pi_{0.5}$ VLA policy deployed zero-shot on real hardware.
-    </p>
+    <div class="text-[13px] mt-4 max-w-3xl leading-relaxed space-y-1">
+      <div><span class="text-paper">SimWeaver-Asset</span> <span class="text-mute">&mdash; simulation-ready deformable assets, extensible by generation</span></div>
+      <div><span class="text-paper">SimWeaver-Sim</span> <span class="text-mute">&mdash; stable, penetration-free rigid&ndash;soft contact</span></div>
+      <div><span class="text-paper">SimWeaver-Syn</span> <span class="text-mute">&mdash; topology-aware, teleoperation-free trajectory generation</span></div>
+      <div><span class="text-paper">SimWeaver-Real</span> <span class="text-mute">&mdash; the sim-to-real deployment protocol</span></div>
+    </div>
   </div>
 </section>
 
